@@ -1,0 +1,229 @@
+import { useState } from "react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Calendar,
+  List,
+  PlusIcon,
+  Phone,
+  Mail,
+  Clock,
+  Building,
+  Check,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+
+type ViewMode = "schedule" | "calendar" | "list";
+
+interface FollowUp {
+  id: number;
+  date: string;
+  customer: string;
+  type: string;
+  time?: string;
+  company?: string;
+  status?: "overdue" | "upcoming" | "normal";
+}
+const mockFollowUps: FollowUp[] = [
+  {
+    id: 1,
+    date: "10",
+    customer: "Sarah Johnson",
+    type: "Call",
+    time: "10:00 AM",
+    company: "Tech Solutions Inc",
+    status: "overdue",
+  },
+  {
+    id: 2,
+    date: "16",
+    customer: "Michael Chen",
+    type: "Email",
+    time: "2:00 PM",
+    company: "StartupXYZ",
+    status: "upcoming",
+  },
+  {
+    id: 3,
+    date: "18",
+    customer: "Emily Davis",
+    type: "Meeting",
+    time: "4:30 PM",
+    company: "Enterprise Corp",
+    status: "normal",
+  },
+];
+
+export default function UpcomingFollowUps() {
+  const [viewMode, setViewMode] = useState<ViewMode>("calendar");
+
+  const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  const getFollowUpForDay = (day: number) => {
+    return mockFollowUps.filter((f) => parseInt(f.date) === day);
+  };
+
+  return (
+    <Card className="p-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-5">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">📅</span>
+          <h2 className="text-lg font-semibold">Upcoming Follow-Ups</h2>
+        </div>
+        <Button size="sm" className="mr-2">
+          <PlusIcon />
+          Schedule
+        </Button>
+        <div className="flex gap-1 bg-gray-100 rounded-md p-1">
+          <Button
+            size="sm"
+            variant={viewMode === "calendar" ? "default" : "ghost"}
+            onClick={() => setViewMode("calendar")}
+            className={cn(
+              "flex-1 px-3 h-8 text-xs",
+              viewMode === "calendar"
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-transparent text-gray-600 hover:bg-gray-200"
+            )}
+          >
+            <Calendar className="w-3 h-3 mr-1" />
+            Calendar
+          </Button>
+          <Button
+            size="sm"
+            variant={viewMode === "list" ? "default" : "ghost"}
+            onClick={() => setViewMode("list")}
+            className={cn(
+              "flex-1 px-3 h-8 text-xs",
+              viewMode === "list"
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-transparent text-gray-600 hover:bg-gray-200"
+            )}
+          >
+            <List className="w-3 h-3 mr-1" />
+            List
+          </Button>
+        </div>
+      </div>
+
+      <p className="text-sm text-gray-500 mb-4">
+        Quick view of scheduled activities
+      </p>
+
+      {viewMode === "calendar" && (
+        <div className="space-y-4">
+          {/* Day names */}
+          <div className="grid grid-cols-7 gap-2">
+            {dayNames.map((day) => (
+              <div
+                key={day}
+                className="text-center text-xs font-medium text-gray-500"
+              >
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Calendar grid */}
+          <div className="grid grid-cols-7 gap-2">
+            {daysInMonth.map((day) => {
+              const followUps = getFollowUpForDay(day);
+              const hasFollowUp = followUps.length > 0;
+              const isOverdue = hasFollowUp && day < 23; // Mock overdue logic
+              const isToday = day === 23;
+
+              return (
+                <div
+                  key={day}
+                  className={cn(
+                    "aspect-square border rounded-md flex flex-col items-center justify-center p-1 text-sm relative",
+                    isToday && "bg-blue-600 text-white font-bold",
+                    hasFollowUp && !isToday && "border-red-400",
+                    !hasFollowUp && !isToday && "text-gray-700"
+                  )}
+                >
+                  <span className="text-xs">{day}</span>
+                  {hasFollowUp && !isToday && (
+                    <span
+                      className={cn(
+                        "text-[10px] font-semibold",
+                        isOverdue ? "text-red-500" : "text-orange-500"
+                      )}
+                    >
+                      {day}+
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {viewMode === "list" && (
+        <div className="space-y-2">
+          {mockFollowUps.map((followUp) => {
+            const isOverdue = followUp.status === "overdue";
+            const isUpcoming = followUp.status === "upcoming";
+
+            const bgClass = isOverdue
+              ? "bg-rose-100 border-rose-200"
+              : isUpcoming
+              ? "bg-amber-100 border-amber-200"
+              : "bg-rose-50 border-rose-100";
+
+            const Icon = (() => {
+              switch (followUp.type) {
+                case "Call":
+                  return <Phone className="w-5 h-5 text-gray-700" />;
+                case "Email":
+                  return <Mail className="w-5 h-5 text-gray-700" />;
+                case "Meeting":
+                default:
+                  return <Calendar className="w-5 h-5 text-gray-700" />;
+              }
+            })();
+
+            return (
+              <div
+                key={followUp.id}
+                className={cn(
+                  "w-full p-4 rounded-md flex items-center justify-between",
+                  "border",
+                  "hover:shadow-sm",
+                  bgClass
+                )}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-md bg-white/70">{Icon}</div>
+                  <div>
+                    <p className="font-semibold text-sm">{followUp.customer}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-4 h-4" /> {followUp.time}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Building className="w-4 h-4" /> {followUp.company}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-gray-500">
+                  <Check className="w-5 h-5" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {viewMode === "schedule" && (
+        <div className="text-center py-8 text-gray-500">
+          Schedule view coming soon
+        </div>
+      )}
+    </Card>
+  );
+}
