@@ -30,14 +30,14 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Total Leads"
-            value={"247"}
+            value={"24"}
             icon={<img src={LeadsIcon} alt="leads" className="size-7" />}
             color="bg-blue-500"
           />
 
           <StatCard
-            title="Confirmed Leads"
-            value={"89"}
+            title="Leads Closed"
+            value={"8"}
             icon={
               <img src={ConfirmedIcon} alt="confirmed" className="size-7" />
             }
@@ -45,17 +45,17 @@ export default function Dashboard() {
           />
 
           <StatCard
-            title="Pipeline Value"
-            value={"$63,500"}
+            title="Follow-ups Pending"
+            value={"12"}
             icon={<img src={ValueIcon} alt="value" className="size-7" />}
             color="bg-yellow-500"
           />
 
           <StatCard
-            title="Monthly Revenue"
-            value={"$221,000"}
+            title="AI Escalations"
+            value={"5"}
             icon={<img src={RevenueIcon} alt="revenue" className="size-7" />}
-            color="bg-orange-500"
+            color="bg-red-500"
           />
         </div>
 
