@@ -94,6 +94,9 @@ const navigationGroups: NavigationGroup[] = [
         ],
       },
       { path: "/leads/ai-marketing", label: "AI Support" },
+      { path: "/leads/escalated-queries", label: "Escalated Queries" },
+      // escalated queries
+
       // payment follow-up
       {
         path: "/leads/payment-follow-up",
@@ -317,7 +320,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <X className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-3" role="button">
+            <div className="flex items-center gap-3" >
               <div>
                 <h2 className="text-lg font-bold text-gray-800">Admin Panel</h2>
                 <p className="text-xs text-gray-500">admin@steelpro.com</p>
