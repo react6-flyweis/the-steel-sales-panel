@@ -9,10 +9,16 @@ const Communication = lazy(() => import("@/pages/communication"));
 const Analytics = lazy(() => import("@/pages/analytics"));
 const Settings = lazy(() => import("@/pages/settings"));
 const Profile = lazy(() => import("@/pages/profile"));
+const EditProfile = lazy(() => import("@/pages/edit-profile"));
+
+const EscalatedQueries = lazy(() => import("@/pages/escalated-queries"));
+
+const Dashboard = lazy(() => import("@/pages/dashboard"));
 
 // leads section
 const Leads = lazy(() => import("@/pages/leads/leads"));
 const AddNewLead = lazy(() => import("@/pages/leads/add-new-lead"));
+const LeadDetails = lazy(() => import("@/pages/leads/lead-details"));
 const FollowUp = lazy(() => import("@/pages/leads/follow-up"));
 const LeadCommunicationTimelinePage = lazy(
   () => import("@/pages/leads/lead-communication-timeline")
@@ -45,6 +51,9 @@ const AIMarketing = lazy(() => import("@/pages/leads/ai-marketing"));
 const InvoiceForm = lazy(() => import("@/pages/invoices/invoice-form"));
 const InvoiceList = lazy(() => import("@/pages/invoices/invoice-list"));
 const SalesGrowth = lazy(() => import("@/pages/invoices/sales-growth"));
+const PaymentFollowUp = lazy(
+  () => import("@/pages/invoices/payment-follow-up")
+);
 
 export const salesRoutes: RouteObject[] = [
   {
@@ -55,7 +64,7 @@ export const salesRoutes: RouteObject[] = [
     path: "/",
     element: <AdminLayout />,
     children: [
-      { index: true, element: <Leads /> },
+      { index: true, element: <Dashboard /> },
 
       // leads routes
       {
@@ -64,6 +73,8 @@ export const salesRoutes: RouteObject[] = [
           { index: true, element: <Leads /> },
           { path: "add", element: <AddNewLead /> },
           { path: "ai-marketing", element: <AIMarketing /> },
+          { path: "payment-follow-up", element: <PaymentFollowUp /> },
+          { path: "escalated-queries", element: <EscalatedQueries /> },
 
           // /leads/follow-up routes
           {
@@ -103,6 +114,7 @@ export const salesRoutes: RouteObject[] = [
           {
             path: ":leadId",
             children: [
+              { index: true, element: <LeadDetails /> },
               { path: "timeline", element: <SingleLeadTimelinePage /> },
               {
                 path: "emails",
@@ -135,13 +147,17 @@ export const salesRoutes: RouteObject[] = [
         path: "analytics",
         element: <Analytics />,
       },
+
       {
         path: "settings",
         element: <Settings />,
       },
       {
         path: "profile",
-        element: <Profile />,
+        children: [
+          { index: true, element: <Profile /> },
+          { path: "edit", element: <EditProfile /> },
+        ],
       },
 
       // invoice routes
