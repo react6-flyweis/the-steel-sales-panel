@@ -59,7 +59,7 @@ export default function CommunicationSidebar({
 
   return (
     <div
-      className={`w-full md:w-80 border-r border-gray-200 flex-col bg-white ${
+      className={`w-full border-r border-gray-200 flex-col bg-white ${
         showSidebar ? "flex" : "hidden md:flex"
       }`}
     >
