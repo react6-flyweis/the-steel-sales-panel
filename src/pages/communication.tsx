@@ -183,7 +183,7 @@ export default function Communication() {
   return (
     <div className="p-5 h-[calc(100vh-80px)]">
       <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative h-full">
-        <div className={showChat ? "hidden md:block md:w-72" : "block md:w-72"}>
+        <div className={showChat ? "hidden md:block md:w-64" : "block md:w-64"}>
           <CommunicationSidebar
             user={user}
             departments={departments}
@@ -215,9 +215,9 @@ export default function Communication() {
           />
         </div>
 
-        {/* Department Info Sidebar (desktop only) */}
-        {selectedChat?.type === "department" && (
-          <div className="hidden md:block md:w-80">
+        {/* Department Info Sidebar (render only when open; overlay instead of reserving space) */}
+        {selectedChat?.type === "department" && showInfoSidebar && (
+          <div className="absolute inset-y-0 right-0 w-full z-50 md:relative md:inset-auto md:block md:w-72">
             <DepartmentInfoSidebar
               isOpen={showInfoSidebar}
               onClose={() => setShowInfoSidebar(false)}
