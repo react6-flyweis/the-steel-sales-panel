@@ -1,8 +1,9 @@
 import { Input } from "@/components/ui/input";
-import { Search, Menu } from "lucide-react";
+import { Search, Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { NotificationMenu } from "@/components/notification-menu";
+import { UserMenu } from "@/components/user-menu";
 import steelLogo from "@/assets/the-steel-logo-dark.svg";
 
 interface HeaderProps {
@@ -36,6 +37,12 @@ export function Header({ onMenuClick }: HeaderProps) {
         {/* Right Side - Notifications and Logo */}
         <div className="flex items-center gap-3 md:gap-6">
           <NotificationMenu />
+
+          <UserMenu>
+            <Button variant="ghost" size="icon" className="rounded-full">
+              <User className="size-6 text-gray-700" />
+            </Button>
+          </UserMenu>
 
           {/* The Steel Logo */}
           <div>
