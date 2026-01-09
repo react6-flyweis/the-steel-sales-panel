@@ -17,7 +17,6 @@ import notificationIcon from "@/assets/icons/sidebar/notifications.svg";
 import activeBgImage from "@/assets/images/active-bg.png";
 
 import { Button } from "@/components/ui/button";
-import { UserMenu } from "@/components/user-menu";
 import { cn } from "@/lib/utils";
 
 type NavGroup =
@@ -95,6 +94,11 @@ const navigationGroups: NavigationGroup[] = [
         ],
       },
       { path: "/leads/ai-marketing", label: "AI Support" },
+      // payment follow-up
+      {
+        path: "/leads/payment-follow-up",
+        label: "Payment Follow-Up",
+      },
     ],
   },
 
@@ -126,12 +130,12 @@ const navigationGroups: NavigationGroup[] = [
     items: [
       { path: "/invoice", label: "Invoice" },
       // invite list
-      { path: "/invoice/list", label: "Invoice List" },
+      // { path: "/invoice/list", label: "Invoice List" },
       // sales growth
-      {
-        path: "/invoice/sales-growth",
-        label: "Sales Growth",
-      },
+      // {
+      //   path: "/invoice/sales-growth",
+      //   label: "Sales Growth",
+      // },
     ],
   },
 ];
@@ -145,7 +149,15 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
-    new Set()
+    () => {
+      const defaults = new Set<string>();
+      navigationGroups.forEach((group) =>
+        group.items.forEach((item) => {
+          if (item.collapsible) defaults.add(item.path);
+        })
+      );
+      return defaults;
+    }
   );
 
   // Determine active group based on current path
@@ -305,7 +317,12 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <X className="h-5 w-5" />
             </button>
-            <UserMenu />
+            <div className="flex items-center gap-3" role="button">
+              <div>
+                <h2 className="text-lg font-bold text-gray-800">Admin Panel</h2>
+                <p className="text-xs text-gray-500">admin@steelpro.com</p>
+              </div>
+            </div>
             <div className="flex items-center justify-between mt-1 text-xs text-gray-400">
               <Button
                 className="rounded bg-gray-300 px-4 text-foreground hover:bg-gray-400"
