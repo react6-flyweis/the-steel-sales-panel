@@ -1,7 +1,9 @@
 import StatCard from "@/components/ui/stat-card";
 import SalesFunnel from "@/components/dashboard/sales-funnel";
-import DealSizeDistribution from "@/components/dashboard/deal-size-distribution";
+import AiSupportSummary from "@/components/dashboard/ai-support-summary";
 import FilterTabs from "@/components/FilterTabs";
+import PerformanceTrends from "@/components/dashboard/performance-trends";
+import TodaysTask from "@/components/dashboard/todays-task";
 
 import LeadsIcon from "@/assets/icons/dashboard/leads.svg";
 import ConfirmedIcon from "@/assets/icons/dashboard/confirmed.svg";
@@ -62,7 +64,15 @@ export default function Dashboard() {
           <div className="lg:col-span-2">
             <SalesFunnel />
           </div>
-          <DealSizeDistribution />
+          <AiSupportSummary />
+        </div>
+
+        {/* chart row 2 2:1 */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <PerformanceTrends />
+          </div>
+          <TodaysTask />
         </div>
       </div>
     </div>
