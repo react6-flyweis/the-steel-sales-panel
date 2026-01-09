@@ -1,243 +1,159 @@
-import { Camera, CircleAlert, MoveLeft } from "lucide-react";
-import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router";
-import TitleSubtitle from "@/components/TitleSubtitle";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { ArrowLeft, Mail, Phone, TrendingUp } from "lucide-react";
+import { useNavigate } from "react-router";
 
-export default function ProfileView() {
+export default function Profile() {
   const navigate = useNavigate();
-  const [profilePicture, setProfilePicture] = useState(
-    "https://imgs.search.brave.com/C6AU3hqShumrOuZaswKHOeZBwOo-XeuuJnf7XZ-5QW4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTAx/Njc0NDAzNC92ZWN0/b3IvcHJvZmlsZS1w/bGFjZWhvbGRlci1p/bWFnZS1ncmF5LXNp/bGhvdWV0dGUtbm8t/cGhvdG8uanBnP3M9/NjEyeDYxMiZ3PTAm/az0yMCZjPVJxdGky/NlZRal9mcy1faEwx/NW1KajZiODRGRVpO/YTAwRkpnWlJhRzVQ/RDQ9"
-  );
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState({
-    fullName: "John Anderson",
-    email: "johnanderson@company.com",
-    phone: "+1 (555) 123-4567",
-    role: "Plant Manager",
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  // Mock data - replace with actual user data
+  const userData = {
+    name: "John Doe",
+    role: "Sales person",
+    joinedDate: "January 15, 2023",
+    email: "luca.moretti@youroutfit.it",
+    phone: "+39 02 8943 2231",
+    avatar: "/placeholder-avatar.jpg",
   };
 
-  const handleProfilePictureClick = () => {
-    fileInputRef.current?.click();
-  };
+  const systemStats = [
+    { label: "Total Users", value: "2,847" },
+    { label: "Total Payment", value: "$124,847" },
+    { label: "Active Follow - ups", value: "23" },
+    { label: "Pending Reviews", value: "12" },
+    { label: "Total Payments", value: "$124,847" },
+    { label: "Active Follow - ups", value: "23" },
+  ];
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 2 * 1024 * 1024) {
-        alert("File size must be less than 2MB");
-        return;
-      }
-
-      if (!file.type.match(/^image\/(jpeg|jpg|png|gif)$/)) {
-        alert("Only JPG, PNG, or GIF files are allowed");
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfilePicture(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
+  const recentActivities = [
+    {
+      text: "Updated user permissions for Marketing Team",
+      time: "2 hours ago",
+    },
+    {
+      text: "Updated user permissions for Marketing Team",
+      time: "2 hours ago",
+    },
+    {
+      text: "Updated user permissions for Marketing Team",
+      time: "2 hours ago",
+    },
+    {
+      text: "Updated user permissions for Marketing Team",
+      time: "2 hours ago",
+    },
+    {
+      text: "Updated user permissions for Marketing Team",
+      time: "2 hours ago",
+    },
+  ];
 
   return (
-    <div className="xl:px-5 px-2 md:pt-5 pb-10 space-y-6">
+    <div className=" p-6">
       {/* Header */}
-      <div className="flex flex-wrap md:items-center items-start justify-between mt-2 xl:mt-0">
-        <div className="flex items-start gap-4 flex-wrap">
-          <Button onClick={() => navigate(-1)}>
-            <MoveLeft className="w-4 h-4" />
-            <p className="font-normal">Back</p>
-          </Button>
-          <TitleSubtitle
-            title="My Profile"
-            subtitle="Update your personal information and security settings"
-          />
-        </div>
-        <Button>Save All Changes</Button>
-      </div>
-
-      {/* Profile Picture Section */}
-      <div className="bg-white rounded-xl p-6 border border-gray-100 flex flex-wrap items-center gap-6">
-        <img
-          src={
-            profilePicture &&
-            "https://imgs.search.brave.com/C6AU3hqShumrOuZaswKHOeZBwOo-XeuuJnf7XZ-5QW4/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTAx/Njc0NDAzNC92ZWN0/b3IvcHJvZmlsZS1w/bGFjZWhvbGRlci1p/bWFnZS1ncmF5LXNp/bGhvdWV0dGUtbm8t/cGhvdG8uanBnP3M9/NjEyeDYxMiZ3PTAm/az0yMCZjPVJxdGky/NlZRal9mcy1faEwx/NW1KajZiODRGRVpO/YTAwRkpnWlJhRzVQ/RDQ9"
-          }
-          alt="Profile"
-          className="w-20 h-20 rounded-full object-cover border-4 border-gray-50"
-        />
-        <div className="space-y-2 flex flex-col flex-wrap">
-          <h3 className="md:text-lg font-semibold text-gray-900">
-            Profile Picture
-          </h3>
-          <div className="flex items-center gap-4">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/jpg,image/png,image/gif"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <Button
-              variant="outline"
-              className="rounded"
-              onClick={handleProfilePictureClick}
-              type="button"
-            >
-              <Camera className="w-4 h-4" />
-              <p className="md:text-sm text-xs">Change Picture</p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <Button size="sm" onClick={() => navigate(-1)}>
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
             </Button>
-            <span className="md:text-sm text-xs text-gray-400">
-              JPG, PNG or GIF, Max size 2MB.
-            </span>
+            <h1 className="text-2xl font-semibold text-gray-900">My profile</h1>
           </div>
+          <p className="text-sm text-gray-600">
+            Manage your profile information and view system overview
+          </p>
         </div>
+        <Button
+          onClick={() => navigate("/profile/edit")}
+          className="bg-blue-600 hover:bg-blue-700 text-white"
+        >
+          Edit Profile
+        </Button>
       </div>
 
-      <h3 className="md:text-lg font-semibold text-gray-900 my-1">
-        Basic Information
-      </h3>
-      {/* Basic Information */}
-      <div className="bg-white rounded-xl p-6 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Full Name
-            </label>
-            <input
-              type="text"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-            />
+      {/* Profile Card */}
+      <Card className="mb-6 bg-white p-4">
+        <div className="flex items-start gap-6">
+          {/* Avatar */}
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-2xl font-semibold">
+            {userData.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")}
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">
-              Phone Number
-            </label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium text-gray-700">Role</label>
-            <input
-              type="text"
-              name="role"
-              value={formData.role}
-              disabled
-              className="w-full px-4 py-2.5 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 focus:outline-none cursor-not-allowed"
-            />
-            <span className="text-xs text-gray-500">
-              Role can not be changed from this interface
-            </span>
+
+          {/* User Info */}
+          <div className="flex-1">
+            <h2 className="text-xl font-semibold text-gray-900 mb-1">
+              {userData.name}
+            </h2>
+            <div className="flex gap-5">
+              <div className="">
+                <p className="text-gray-600 mb-3">{userData.role}</p>
+                <p className="text-sm text-gray-500 mb-4">
+                  Joined {userData.joinedDate}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Mail className="w-4 h-4" />
+                  <span>{userData.email}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Phone className="w-4 h-4" />
+                  <span>{userData.phone}</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* Security Settings */}
-      <div className="mb-5">
-        <h3 className="md:text-lg font-semibold text-gray-900">
-          Security Settings
+      {/* System Overview */}
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          System Overview
         </h3>
-
-        <p className="text-sm text-gray-500">
-          Leave password fields empty if you don't want to change your password.
-        </p>
-      </div>
-      <div className="bg-white rounded-xl p-6 border border-gray-100">
-        <div className="space-y-6">
-          <div className="w-full md:w-1/2 pr-0 md:pr-3">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Current Password
-              </label>
-              <input
-                type="password"
-                name="currentPassword"
-                placeholder="Enter current password"
-                value={formData.currentPassword}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                New password
-              </label>
-              <input
-                type="password"
-                name="newPassword"
-                placeholder="Enter new password"
-                value={formData.newPassword}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-              />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <label className="text-sm font-medium text-gray-700">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirm New Password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-gray-700 placeholder-gray-400"
-              />
-            </div>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {systemStats.map((stat, index) => (
+            <Card
+              key={index}
+              className="bg-white p-4 ring-0 rounded-lg hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
+                  <p className="text-2xl font-bold text-gray-900">
+                    {stat.value}
+                  </p>
+                </div>
+                <div className="w-10 h-10 rounded-md bg-blue-50 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-blue-600" />
+                </div>
+              </div>
+            </Card>
+          ))}
         </div>
       </div>
 
-      {/* Password Requirements Info */}
-      <div className="bg-blue-50 rounded p-4 border border-blue-100">
-        <div className="flex items-center gap-2 mb-4 text-primary font-medium md:text-sm text-xs">
-          <CircleAlert className="w-5 h-5" />
-          Password Requirements:
-        </div>
-        <ul className="space-y-2 md:text-sm text-xs text-primary">
-          <li>At least 8 characters long</li>
-          <li>Include uppercase and lowercase letters</li>
-          <li>Include at least one number</li>
-          <li>Include at least one special character</li>
-        </ul>
-      </div>
+      {/* Recent Activity */}
+      <Card>
+        <CardHeader>
+          <h3 className="text-lg font-semibold text-gray-900 ">
+            Recent Activity
+          </h3>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {recentActivities.map((activity, index) => (
+            <div key={index} className="bg-gray-50 rounded-lg p-4 ">
+              <p className="text-sm text-gray-900 mb-1">{activity.text}</p>
+              <p className="text-xs text-gray-500">{activity.time}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </div>
   );
 }
