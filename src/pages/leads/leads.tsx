@@ -6,20 +6,19 @@ import {
   MessageSquare,
   Eye,
   Edit,
-  Users,
   UserCheck,
-  UserX,
-  Mail,
+  FileText,
+  Redo,
+  TrendingUp,
 } from "lucide-react";
 import ImportLeadsDialog from "@/components/leads/import-leads-dialog";
-import AssignSalesDialog from "@/components/leads/assign-sales-dialog";
 import CreateQuotationDialog from "@/components/leads/create-quotation-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/ui/stat-card";
-import LeadDetailDialog from "@/components/leads/lead-detail-dialog";
 import ChatDialog from "@/components/leads/chat-dialog";
+import MoveToOrdersDialog from "@/components/leads/move-to-orders-dialog";
 import {
   Select,
   SelectContent,
@@ -27,14 +26,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import FilterTabs from "@/components/FilterTabs";
 
 // Mock data - replace with actual API calls
 const initialLeads = [
   {
     id: "ID-2025-1047",
-    name: "John Doe",
+    name: "PROJECT 1",
     workshop: "Workshop",
     category: "Texas",
     assignedTo: null,
@@ -46,10 +44,11 @@ const initialLeads = [
     statusColor: "purple",
     quoteValue: "$12,500",
     chatCount: 2,
+    nextFollowUp: "25-01-2025",
   },
   {
-    id: "ID-2025-1047",
-    name: "John Doe",
+    id: "ID-2025-1048",
+    name: "PROJECT 2",
     workshop: "Workshop",
     category: "Texas",
     assignedTo: "Sarah Lee",
@@ -61,10 +60,11 @@ const initialLeads = [
     statusColor: "orange",
     quoteValue: "$12,500",
     chatCount: 4,
+    nextFollowUp: "25-01-2025",
   },
   {
-    id: "ID-2025-1047",
-    name: "John Doe",
+    id: "ID-2025-1049",
+    name: "PROJECT 3",
     workshop: "Workshop",
     category: "Texas",
     assignedTo: "Sarah Lee",
@@ -76,10 +76,11 @@ const initialLeads = [
     statusColor: "purple",
     quoteValue: "$12,500",
     chatCount: 2,
+    nextFollowUp: "25-01-2025",
   },
   {
-    id: "ID-2025-1047",
-    name: "John Doe",
+    id: "ID-2025-1050",
+    name: "PROJECT 4",
     workshop: "Workshop",
     category: "Texas",
     assignedTo: "Sarah Lee",
@@ -91,13 +92,13 @@ const initialLeads = [
     statusColor: "purple",
     quoteValue: "$12,500",
     chatCount: 2,
+    nextFollowUp: "25-01-2025",
   },
 ];
 
 export default function LeadsPage() {
   const [buildingType, setBuildingType] = useState("all");
   const [projectValue, setProjectValue] = useState("all");
-  const [assignments, setAssignments] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const [leads] = useState(initialLeads);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
@@ -149,35 +150,37 @@ export default function LeadsPage() {
       <div className="p-4 sm:p-6 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl sm:text-3xl text-gray-900">Leads</h1>
-          <p className="text-gray-500 mt-1">Assign and view leads</p>
+          <h1 className="text-2xl sm:text-3xl text-gray-900">Assigned Leads</h1>
+          <p className="text-gray-500 mt-1">
+            Manage your assigned leads and track their progress.
+          </p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            title="Total Leads"
-            value="7"
+            title="Leads in Pipeline"
+            value="24"
             color="bg-blue-600"
-            icon={<Users className="h-5 w-5 text-blue-600" />}
+            icon={<UserPlus className="h-5 w-5 text-blue-600" />}
           />
           <StatCard
-            title="Assigned"
-            value="5"
-            color="bg-green-600"
-            icon={<UserCheck className="h-5 w-5 text-green-600" />}
+            title="Leads Closed"
+            value="8"
+            color="bg-green-500"
+            icon={<UserCheck className="h-5 w-5 text-green-500" />}
           />
           <StatCard
-            title="Unassigned"
-            value="2"
+            title="Follow-ups Pending"
+            value="12"
             color="bg-yellow-500"
-            icon={<UserX className="h-5 w-5 text-yellow-600" />}
+            icon={<FileText className="h-5 w-5 text-yellow-500" />}
           />
           <StatCard
-            title="Unopened Message"
-            value="7"
-            color="bg-orange-500"
-            icon={<Mail className="h-5 w-5 text-orange-600" />}
+            title="AI Escalations"
+            value="5"
+            color="bg-orange-400"
+            icon={<TrendingUp className="h-5 w-5 text-orange-400" />}
           />
         </div>
 
@@ -229,17 +232,6 @@ export default function LeadsPage() {
               </SelectContent>
             </Select>
 
-            <Select value={assignments} onValueChange={setAssignments}>
-              <SelectTrigger className="w-full sm:w-40 bg-white">
-                <SelectValue placeholder="All Assignments" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Assignments</SelectItem>
-                <SelectItem value="assigned">Assigned</SelectItem>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
-              </SelectContent>
-            </Select>
-
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full sm:w-40 bg-white">
                 <SelectValue placeholder="All Status" />
@@ -270,25 +262,25 @@ export default function LeadsPage() {
                       />
                     </th>
                     <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Lead Info
+                      PROJECT NAME
                     </th>
                     <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Assigned To
+                      PROGRESS
                     </th>
                     <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Progress
+                      STATUS
                     </th>
                     <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
+                      PROJECT VALUE
                     </th>
                     <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Quote Value
+                      NEXT FOLLOW UP
                     </th>
                     <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Chat
+                      CHAT
                     </th>
                     <th className="px-3 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
+                      ACTIONS
                     </th>
                   </tr>
                 </thead>
@@ -305,129 +297,99 @@ export default function LeadsPage() {
                           className="rounded border-gray-300"
                         />
                       </td>
+
                       <td className="px-3 py-2 sm:px-6 sm:py-4">
                         <div className="flex flex-col">
-                          <span className="font-medium text-gray-900">
+                          <span className="font-semibold text-gray-900 uppercase">
                             {lead.name}
                           </span>
                           <span className="text-sm text-gray-500">
-                            {lead.id}
+                            {lead.id.replace(/^ID-/, "Q-")}
                           </span>
                           <span className="text-sm text-gray-500">
                             {lead.workshop} · {lead.category}
                           </span>
-                        </div>
-                      </td>
-                      <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <div className="flex items-center gap-2">
-                          {lead.assignedTo ? (
-                            <>
-                              <Avatar className="h-6 w-6 bg-green-100">
-                                <AvatarFallback className="text-xs text-green-700">
-                                  {lead.assignedToName
-                                    .split(" ")
-                                    .map((n) => n[0])
-                                    .join("")}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium text-gray-900">
-                                  {lead.assignedToName}
-                                </span>
-                                <span className="text-xs text-gray-500">
-                                  {lead.assignmentStatus}
-                                </span>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <Avatar className="h-6 w-6 bg-gray-100">
-                                <AvatarFallback className="text-xs text-gray-500">
-                                  <UserPlus className="h-3 w-3" />
-                                </AvatarFallback>
-                              </Avatar>
-                              <AssignSalesDialog
-                                trigger={
-                                  <span className="text-sm text-green-600 font-medium cursor-pointer">
-                                    {lead.assignmentStatus}
-                                  </span>
-                                }
-                              />
-                            </>
+                          {lead.assignedTo && (
+                            <span className="text-sm text-gray-700 mt-1">
+                              Assigned to {lead.assignedToName}
+                            </span>
                           )}
                         </div>
                       </td>
+
                       <td className="px-3 py-2 sm:px-6 sm:py-4">
                         <div className="flex flex-col gap-1">
                           {getProgressDots(lead.progress)}
-                          <span className="text-xs text-gray-500">
+                          <a className="text-sm text-blue-600" href="#">
                             {lead.progressStep}
-                          </span>
+                          </a>
                         </div>
                       </td>
+
                       <td className="px-3 py-2 sm:px-6 sm:py-4">
                         <Badge
-                          className={getStatusBadgeColor(lead.statusColor)}
+                          className={`${getStatusBadgeColor(
+                            lead.statusColor
+                          )} rounded-full px-4 py-1 text-sm`}
                           variant="secondary"
                         >
                           {lead.status}
                         </Badge>
                       </td>
+
                       <td className="px-3 py-2 sm:px-6 sm:py-4">
                         <span className="font-medium text-gray-900">
                           {lead.quoteValue}
                         </span>
                       </td>
+
+                      <td className="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-600">
+                        {lead.nextFollowUp}
+                      </td>
+
                       <td className="px-3 py-2 sm:px-6 sm:py-4">
                         <ChatDialog
                           lead={lead}
                           trigger={
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="relative p-2 h-8 w-8"
-                            >
-                              <MessageSquare className="h-4 w-4 text-blue-600" />
+                            <button className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600">
+                              <MessageSquare className="h-4 w-4" />
+                              <span className="text-sm">Chat</span>
                               {lead.chatCount > 0 && (
-                                <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
+                                <span className="ml-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-500 text-white text-xs">
                                   {lead.chatCount}
                                 </span>
                               )}
-                            </Button>
+                            </button>
                           }
                         />
                       </td>
+
                       <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <div className="flex items-center gap-2">
-                          <LeadDetailDialog
-                            lead={lead}
-                            trigger={
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="p-2 h-8 w-8"
-                              >
-                                <Eye className="h-4 w-4 text-gray-600" />
-                              </Button>
-                            }
-                          />
-                          <AssignSalesDialog
-                            trigger={
-                              <Button variant="ghost" size="icon">
-                                <UserPlus />
-                              </Button>
-                            }
-                          />
+                        <div className="flex items-center gap-3">
+                          <Link to={`/leads/${lead.id}`}>
+                            <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
+                              <Eye className="h-4 w-4 text-gray-600" />
+                            </button>
+                          </Link>
+
                           <CreateQuotationDialog
                             leadData={{ name: lead.name, id: lead.id }}
                             trigger={
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="p-2 h-8 w-8"
-                              >
+                              <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
                                 <Edit className="h-4 w-4 text-gray-600" />
-                              </Button>
+                              </button>
+                            }
+                          />
+
+                          <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
+                            <FileText className="h-4 w-4 text-gray-600" />
+                          </button>
+
+                          <MoveToOrdersDialog
+                            trigger={
+                              <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
+                                <Redo className="h-4 w-4 text-red-500" />
+                              </button>
                             }
                           />
                         </div>
