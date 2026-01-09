@@ -57,7 +57,7 @@ export default function DepartmentInfoSidebar({
       />
 
       {/* Sidebar */}
-      <div className="fixed md:relative right-0 top-0 h-full w-full md:w-96 bg-white border-l border-gray-200 z-50 flex flex-col shadow-xl md:shadow-none">
+      <div className="fixed md:relative right-0 top-0 h-full w-full  bg-white border-l border-gray-200 z-50 flex flex-col shadow-xl md:shadow-none">
         {/* Header */}
         <div className="p-6 border-b border-gray-100">
           <div className="flex items-start justify-between mb-4">
