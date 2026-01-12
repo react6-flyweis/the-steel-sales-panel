@@ -320,7 +320,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <X className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-3" >
+            <div className="flex items-center gap-3">
               <div>
                 <h2 className="text-lg font-bold text-gray-800">Admin Panel</h2>
                 <p className="text-xs text-gray-500">admin@steelpro.com</p>
@@ -364,7 +364,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                       <button
                         onClick={() => toggleSection(item.path)}
                         className={cn(
-                          "w-full flex items-center justify-between px-4 py-2 rounded-lg transition-colors bg-white",
+                          "w-full flex items-center justify-between text-sm px-4 py-2 rounded-lg transition-colors bg-white",
                           {
                             "ring shadow-lg": isAnySubItemActive,
                           }
@@ -418,7 +418,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                     onClick={handleNavClick}
                     className={({ isActive }) =>
                       cn(
-                        "block px-4 py-2 rounded-lg transition-colors",
+                        "block px-4 py-2 rounded-lg transition-colors text-sm",
                         {
                           [`text-white ${activeGroup.color}`]:
                             isFirst || isActive,
@@ -426,7 +426,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
                         {
                           "bg-white shadow-lg": !isFirst && !isActive,
                         },
-                        { "w-4/5 mb-5": isFirst }
+                        { "w-[95%] mb-5": isFirst }
                       )
                     }
                   >
