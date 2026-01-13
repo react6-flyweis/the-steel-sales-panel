@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,63 @@ export default function LeadCommunicationTimeline() {
     },
   ];
 
+  // Helpers: parse input dd-mm-yyyy -> Date, and parse item timestamp
+  const parseInputDate = (s: string) => {
+    const v = s.trim();
+    if (!v) return null;
+    // accept dd-mm-yyyy or yyyy-mm-dd
+    const dashParts = v.split("-");
+    if (dashParts.length === 3) {
+      // if first part length 4 -> assume yyyy-mm-dd
+      if (dashParts[0].length === 4) {
+        return new Date(v);
+      }
+      // assume dd-mm-yyyy
+      const [dd, mm, yyyy] = dashParts;
+      return new Date(`${yyyy}-${mm}-${dd}`);
+    }
+    const d = new Date(v);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const parseItemDate = (item: CommunicationItem) => {
+    // timestamp format like "2024-01-15 at 3:45 PM"
+    const datePart = item.timestamp.split(" at ")[0];
+    const d = new Date(datePart);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const filteredCommunicationItems = useMemo(() => {
+    const from = parseInputDate(dateFrom);
+    const to = parseInputDate(dateTo);
+
+    return communicationItems.filter((item) => {
+      // status filter
+      if (status && status !== "all" && item.status !== status) return false;
+
+      // client search (case-insensitive substring)
+      if (searchClient.trim()) {
+        const needle = searchClient.trim().toLowerCase();
+        if (!item.clientName.toLowerCase().includes(needle)) return false;
+      }
+
+      // date range filter (compare only date portion)
+      const itemDate = parseItemDate(item);
+      if (from && itemDate) {
+        // if item date is before from -> exclude
+        if (itemDate < from) return false;
+      }
+      if (to && itemDate) {
+        // include items up to end of 'to' day
+        const endOfTo = new Date(to);
+        endOfTo.setHours(23, 59, 59, 999);
+        if (itemDate > endOfTo) return false;
+      }
+
+      return true;
+    });
+  }, [communicationItems, status, dateFrom, dateTo, searchClient]);
+
   return (
     <div className="w-full">
       {/* Header */}
@@ -133,6 +190,7 @@ export default function LeadCommunicationTimeline() {
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
                 <SelectItem value="pending">Pending</SelectItem>
                 <SelectItem value="scheduled">Scheduled</SelectItem>
@@ -157,37 +215,43 @@ export default function LeadCommunicationTimeline() {
 
         {/* Timeline Grid - Two Columns */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {communicationItems.map((item) => (
-            <Card
-              key={item.id}
-              className="py-0 rounded-md ring-0 border-none cursor-pointer hover:shadow-lg transition-shadow"
-              onClick={() => navigate(`/leads/${item.id}/timeline`)}
-            >
-              <CardContent className="p-4">
-                {/* Client Name */}
-                <h3 className="font-semibold text-gray-900 mb-2">
-                  {item.clientName}
-                </h3>
+          {filteredCommunicationItems.length === 0 ? (
+            <div className="col-span-1 md:col-span-2 text-center text-sm text-gray-500 py-8">
+              No communication items found.
+            </div>
+          ) : (
+            filteredCommunicationItems.map((item) => (
+              <Card
+                key={item.id}
+                className="py-0 rounded-md ring-0 border-none cursor-pointer hover:shadow-lg transition-shadow"
+                onClick={() => navigate(`/leads/${item.id}/timeline`)}
+              >
+                <CardContent className="p-4">
+                  {/* Client Name */}
+                  <h3 className="font-semibold text-gray-900 mb-2">
+                    {item.clientName}
+                  </h3>
 
-                {/* Message with Icon */}
-                <div className="flex items-start gap-2 mb-3">
-                  <Mail className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                  <p className="text-sm text-gray-600 line-clamp-2">
-                    {item.message}
-                  </p>
-                </div>
-
-                {/* Contact Person and Timestamp */}
-                <div className="flex items-center justify-between text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <User className="h-3 w-3" />
-                    <span>{item.contactPerson}</span>
+                  {/* Message with Icon */}
+                  <div className="flex items-start gap-2 mb-3">
+                    <Mail className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-gray-600 line-clamp-2">
+                      {item.message}
+                    </p>
                   </div>
-                  <span>{item.timestamp}</span>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                  {/* Contact Person and Timestamp */}
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <div className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      <span>{item.contactPerson}</span>
+                    </div>
+                    <span>{item.timestamp}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </div>
       </div>
     </div>
