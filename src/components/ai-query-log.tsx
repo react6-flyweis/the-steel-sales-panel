@@ -1,6 +1,7 @@
 import { Search, MessageSquare, Mic, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useState, useMemo } from "react";
 import {
   Select,
   SelectTrigger,
@@ -63,6 +64,34 @@ const SAMPLE: Query[] = [
 ];
 
 export default function AiQueryLog() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [resolutionFilter, setResolutionFilter] = useState("all");
+
+  const filteredData = useMemo(() => {
+    return SAMPLE.filter((query) => {
+      // Resolution filter
+      if (
+        resolutionFilter !== "all" &&
+        query.res.toLowerCase() !== resolutionFilter
+      ) {
+        return false;
+      }
+
+      // Search filter
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matchesSearch =
+          query.id.toLowerCase().includes(q) ||
+          query.customer.toLowerCase().includes(q) ||
+          query.type.toLowerCase().includes(q) ||
+          query.by.toLowerCase().includes(q);
+        if (!matchesSearch) return false;
+      }
+
+      return true;
+    });
+  }, [searchQuery, resolutionFilter]);
+
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
       <div className="flex items-center justify-between mb-4">
@@ -74,12 +103,17 @@ export default function AiQueryLog() {
               <Input
                 className="w-full pl-10 pr-4 py-2 text-sm"
                 placeholder="Search by customer or type..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
           </div>
 
           <div className="ml-auto">
-            <Select>
+            <Select
+              value={resolutionFilter}
+              onValueChange={setResolutionFilter}
+            >
               <SelectTrigger className="w-[160px]">
                 <SelectValue placeholder="All Queries" />
               </SelectTrigger>
@@ -107,58 +141,72 @@ export default function AiQueryLog() {
             </tr>
           </thead>
           <tbody className="text-sm">
-            {SAMPLE.map((q) => {
-              const escalated = q.res === "Escalated";
-              return (
-                <tr key={q.id} className={escalated ? "bg-rose-50" : ""}>
-                  <td className="py-5 pl-4 font-medium text-slate-800">
-                    {q.id}
-                  </td>
-                  <td className="py-5">{q.customer}</td>
-                  <td className="py-5 flex items-center gap-2 text-slate-600">
-                    {q.type === "Text" ? (
-                      <MessageSquare className="w-4 h-4 text-slate-400" />
-                    ) : (
-                      <Mic className="w-4 h-4 text-slate-400" />
-                    )}
-                    <span>{q.type}</span>
-                  </td>
-                  <td className="py-5">
-                    <span className="inline-flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-700">
-                      <User className="w-3 h-3 text-slate-500" />
-                      {q.by}
-                    </span>
-                  </td>
-                  <td className="py-5">
-                    {q.res === "Resolved" ? (
-                      <Badge variant="secondary">Resolved</Badge>
-                    ) : (
-                      <Badge className="bg-rose-100 text-rose-700">
-                        Escalated
-                      </Badge>
-                    )}
-                  </td>
-                  <td className="py-5 text-slate-600">{q.ts}</td>
-                  <td className="py-5 pr-4 text-right">
-                    {escalated ? (
-                      <Button className="bg-blue-600 text-white">
-                        Take over
-                      </Button>
-                    ) : (
-                      <Button className="bg-gray-100 hover:bg-gray-200 text-gray-800">
-                        Marked as Resolved
-                      </Button>
-                    )}
-                  </td>
-                </tr>
-              );
-            })}
+            {filteredData.length > 0 ? (
+              filteredData.map((q) => {
+                const escalated = q.res === "Escalated";
+                return (
+                  <tr key={q.id} className={escalated ? "bg-rose-50" : ""}>
+                    <td className="py-5 pl-4 font-medium text-slate-800">
+                      {q.id}
+                    </td>
+                    <td className="py-5">{q.customer}</td>
+                    <td className="py-5 flex items-center gap-2 text-slate-600">
+                      {q.type === "Text" ? (
+                        <MessageSquare className="w-4 h-4 text-slate-400" />
+                      ) : (
+                        <Mic className="w-4 h-4 text-slate-400" />
+                      )}
+                      <span>{q.type}</span>
+                    </td>
+                    <td className="py-5">
+                      <span className="inline-flex items-center gap-2 bg-slate-100 px-3 py-1 rounded-full text-xs text-slate-700">
+                        <User className="w-3 h-3 text-slate-500" />
+                        {q.by}
+                      </span>
+                    </td>
+                    <td className="py-5">
+                      {q.res === "Resolved" ? (
+                        <Badge variant="secondary">Resolved</Badge>
+                      ) : (
+                        <Badge className="bg-rose-100 text-rose-700">
+                          Escalated
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="py-5 text-slate-600">{q.ts}</td>
+                    <td className="py-5 pr-4 text-right">
+                      {escalated ? (
+                        <Button className="bg-blue-600 text-white">
+                          Take over
+                        </Button>
+                      ) : (
+                        <Button className="bg-gray-100 hover:bg-gray-200 text-gray-800">
+                          Marked as Resolved
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <div className="flex flex-col items-center">
+                    <Search className="h-12 w-12 text-slate-300 mb-3" />
+                    <p className="text-lg font-medium">No queries found</p>
+                    <p className="text-sm">
+                      Try adjusting your search or filters
+                    </p>
+                  </div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       <div className="mt-4 text-slate-500 text-sm">
-        Showing 1 to 5 of 6 results
+        Showing {filteredData.length} of {SAMPLE.length} results
       </div>
     </div>
   );

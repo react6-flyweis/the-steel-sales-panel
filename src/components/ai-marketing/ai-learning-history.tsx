@@ -6,7 +6,9 @@ import {
   BookOpen,
   User as UserIcon,
   Check,
+  Search,
 } from "lucide-react";
+import { useState, useMemo } from "react";
 
 const history = [
   {
@@ -105,24 +107,59 @@ function HistoryItem({ item }: { item: (typeof history)[0] }) {
 }
 
 export default function AILearningHistory() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredHistory = useMemo(() => {
+    if (!searchQuery) return history;
+
+    const query = searchQuery.toLowerCase();
+    return history.filter(
+      (item) =>
+        item.title.toLowerCase().includes(query) ||
+        item.subtitle.toLowerCase().includes(query) ||
+        item.actor.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
   return (
     <div className="bg-white rounded-lg p-4 sm:p-6 mt-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
         <h2 className="text-lg sm:text-xl font-semibold text-slate-900">
           AI Learning History
         </h2>
-        <a className="hidden sm:inline-flex text-sm text-sky-600">View All</a>
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search history..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 text-sm bg-gray-100 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
       </div>
 
       <div className="space-y-4">
-        {history.map((h, idx) => (
-          <HistoryItem key={idx} item={h} />
-        ))}
+        {filteredHistory.length > 0 ? (
+          filteredHistory.map((h, idx) => <HistoryItem key={idx} item={h} />)
+        ) : (
+          <div className="py-12 text-center text-slate-500">
+            <div className="flex flex-col items-center">
+              <Search className="h-12 w-12 text-slate-300 mb-3" />
+              <p className="text-lg font-medium">No history found</p>
+              <p className="text-sm">Try adjusting your search</p>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="text-center mt-4">
-        <button className="text-sky-600 text-sm">Load More History</button>
-      </div>
+      {filteredHistory.length > 0 && (
+        <div className="text-center mt-4">
+          <button className="text-sky-600 text-sm">Load More History</button>
+        </div>
+      )}
     </div>
   );
 }

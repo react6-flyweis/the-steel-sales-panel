@@ -1,4 +1,5 @@
 import { MessageSquare, Mic, Search } from "lucide-react";
+import { useState, useMemo } from "react";
 
 const rows = [
   {
@@ -81,6 +82,22 @@ function Stars({ n }: { n: number }) {
 }
 
 export default function AIQueryLog() {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredRows = useMemo(() => {
+    if (!searchQuery) return rows;
+
+    const query = searchQuery.toLowerCase();
+    return rows.filter(
+      (row) =>
+        row.id.toLowerCase().includes(query) ||
+        row.name.toLowerCase().includes(query) ||
+        row.type.toLowerCase().includes(query) ||
+        row.handledBy.toLowerCase().includes(query) ||
+        row.resolution.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 mt-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
@@ -93,6 +110,8 @@ export default function AIQueryLog() {
             <input
               placeholder="Search by customer or type..."
               className="bg-transparent outline-none text-sm text-slate-600 w-full"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
           <div className="hidden sm:inline-flex bg-gray-100 rounded-lg px-3 py-2 text-sm text-slate-700">
@@ -117,67 +136,83 @@ export default function AIQueryLog() {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr
-                key={r.id}
-                className={`${r.resolution === "Escalated" ? "bg-red-50" : ""}`}
-              >
-                <td className="py-3 pl-2 sm:py-6 font-medium text-slate-800">
-                  {r.id}
-                </td>
-                <td className="py-3 sm:py-6 text-slate-700 min-w-0">
-                  <div className="flex flex-col">
-                    <span className="font-medium truncate">{r.name}</span>
-                    <span className="text-xs text-slate-500 sm:hidden mt-1">
-                      {r.timestamp}
-                    </span>
-                  </div>
-                </td>
-                <td className="py-3 hidden sm:table-cell text-slate-600 flex items-center gap-2">
-                  {r.type === "Text" ? (
-                    <MessageSquare className="w-4 h-4 text-slate-400" />
-                  ) : (
-                    <Mic className="w-4 h-4 text-slate-400" />
-                  )}
-                  <span>{r.type}</span>
-                </td>
-                <td className="py-3 hidden sm:table-cell">
-                  <Badge
-                    color={
-                      r.handledBy === "AI"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-purple-100 text-purple-800"
-                    }
-                  >
-                    {r.handledBy}
-                  </Badge>
-                </td>
-                <td className="py-3 hidden sm:table-cell">
-                  {r.resolution === "Resolved" ? (
-                    <Badge color="bg-emerald-100 text-emerald-800">
-                      Resolved
+            {filteredRows.length > 0 ? (
+              filteredRows.map((r) => (
+                <tr
+                  key={r.id}
+                  className={`${
+                    r.resolution === "Escalated" ? "bg-red-50" : ""
+                  }`}
+                >
+                  <td className="py-3 pl-2 sm:py-6 font-medium text-slate-800">
+                    {r.id}
+                  </td>
+                  <td className="py-3 sm:py-6 text-slate-700 min-w-0">
+                    <div className="flex flex-col">
+                      <span className="font-medium truncate">{r.name}</span>
+                      <span className="text-xs text-slate-500 sm:hidden mt-1">
+                        {r.timestamp}
+                      </span>
+                    </div>
+                  </td>
+                  <td className="py-3 hidden sm:table-cell text-slate-600 flex items-center gap-2">
+                    {r.type === "Text" ? (
+                      <MessageSquare className="w-4 h-4 text-slate-400" />
+                    ) : (
+                      <Mic className="w-4 h-4 text-slate-400" />
+                    )}
+                    <span>{r.type}</span>
+                  </td>
+                  <td className="py-3 hidden sm:table-cell">
+                    <Badge
+                      color={
+                        r.handledBy === "AI"
+                          ? "bg-blue-100 text-blue-800"
+                          : "bg-purple-100 text-purple-800"
+                      }
+                    >
+                      {r.handledBy}
                     </Badge>
-                  ) : (
-                    <Badge color="bg-rose-100 text-rose-800">Escalated</Badge>
-                  )}
-                </td>
-                <td className="py-3 sm:py-6">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Stars n={r.rating} />
-                    <span className="text-slate-500">({r.rating})</span>
+                  </td>
+                  <td className="py-3 hidden sm:table-cell">
+                    {r.resolution === "Resolved" ? (
+                      <Badge color="bg-emerald-100 text-emerald-800">
+                        Resolved
+                      </Badge>
+                    ) : (
+                      <Badge color="bg-rose-100 text-rose-800">Escalated</Badge>
+                    )}
+                  </td>
+                  <td className="py-3 sm:py-6">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Stars n={r.rating} />
+                      <span className="text-slate-500">({r.rating})</span>
+                    </div>
+                  </td>
+                  <td className="py-3 pr-2 sm:py-6 text-slate-500 hidden sm:table-cell">
+                    {r.timestamp}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={7} className="py-12 text-center text-slate-500">
+                  <div className="flex flex-col items-center">
+                    <Search className="h-12 w-12 text-slate-300 mb-3" />
+                    <p className="text-lg font-medium">No queries found</p>
+                    <p className="text-sm">Try adjusting your search</p>
                   </div>
-                </td>
-                <td className="py-3 pr-2 sm:py-6 text-slate-500 hidden sm:table-cell">
-                  {r.timestamp}
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-6 text-sm text-slate-600 gap-3">
-        <div>Showing 1 to 5 of 6 results</div>
+        <div>
+          Showing {filteredRows.length} of {rows.length} results
+        </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button className="w-full sm:w-auto px-3 py-2 rounded-md bg-white border text-slate-600">
             Previous
