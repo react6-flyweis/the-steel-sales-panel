@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Search, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -95,6 +95,29 @@ const mockData: PaymentFollowUp[] = [
 export default function PaymentFollowUp() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  // Filter data based on search and status
+  const filteredData = useMemo(() => {
+    return mockData.filter((item) => {
+      // Status filter
+      if (statusFilter !== "all" && item.status !== statusFilter) {
+        return false;
+      }
+
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          item.clientName.toLowerCase().includes(query) ||
+          item.clientId.toLowerCase().includes(query) ||
+          item.invoice.toLowerCase().includes(query) ||
+          item.location.toLowerCase().includes(query);
+        if (!matchesSearch) return false;
+      }
+
+      return true;
+    });
+  }, [searchQuery, statusFilter]);
 
   const getStatusBadge = (status: PaymentFollowUp["status"]) => {
     switch (status) {
@@ -210,113 +233,132 @@ export default function PaymentFollowUp() {
               </tr>
             </TableHeader>
             <TableBody className="divide-y divide-gray-200">
-              {mockData.map((item) => (
-                <TableRow
-                  key={item.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <TableCell className="px-6 py-4">
-                    <div className="flex flex-col">
-                      <div className="font-medium text-gray-900">
-                        {item.clientName}
+              {filteredData.length > 0 ? (
+                filteredData.map((item) => (
+                  <TableRow
+                    key={item.id}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <TableCell className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <div className="font-medium text-gray-900">
+                          {item.clientName}
+                        </div>
+                        <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                          {item.clientId}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {item.location}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
-                        {item.clientId}
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      <span className="text-sm font-medium text-blue-600">
+                        {item.invoice}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      <div className="flex flex-col">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {formatCurrency(item.amount)}
+                        </div>
+                        <div className="text-xs text-red-500">
+                          Due {formatCurrency(item.dueAmount)}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {item.location}
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      <span className="text-sm text-gray-700">
+                        {item.paymentDate || "------"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      <span className="text-sm text-gray-700">
+                        {item.nextFollowUp}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      {getStatusBadge(item.status)}
+                    </TableCell>
+                    <TableCell className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <CustomerDetailsDialog
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-blue-600"
+                            >
+                              View Details
+                            </Button>
+                          }
+                          customer={{
+                            name: item.clientName,
+                            companyName: item.clientName,
+                            email: undefined,
+                            phone: item.location,
+                            address: item.location,
+                            totalPayment: item.amount,
+                            totalPaid: item.paymentDate ? item.amount : 0,
+                            outstanding: item.dueAmount,
+                            payments: [
+                              {
+                                invoice: item.invoice,
+                                date: item.paymentDate,
+                                amount: item.amount,
+                                balance: item.nextFollowUp,
+                                status:
+                                  item.status === "confirmed"
+                                    ? "Confirmed"
+                                    : item.status === "notified"
+                                    ? "Notified"
+                                    : "Pending",
+                              },
+                            ],
+                          }}
+                        />
+                        {item.status === "pending" && (
+                          <>
+                            <span className="text-gray-300">|</span>
+                            <NotifyToAccountsDialog
+                              trigger={
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  className="text-blue-600"
+                                >
+                                  Notify
+                                </Button>
+                              }
+                              onNotify={(date) => {
+                                // TODO: implement notify action for this row
+                                console.log(
+                                  "Notify date:",
+                                  date,
+                                  "for",
+                                  item.id
+                                );
+                              }}
+                            />
+                          </>
+                        )}
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <span className="text-sm font-medium text-blue-600">
-                      {item.invoice}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <div className="flex flex-col">
-                      <div className="text-sm font-semibold text-gray-900">
-                        {formatCurrency(item.amount)}
-                      </div>
-                      <div className="text-xs text-red-500">
-                        Due {formatCurrency(item.dueAmount)}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <span className="text-sm text-gray-700">
-                      {item.paymentDate || "------"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <span className="text-sm text-gray-700">
-                      {item.nextFollowUp}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    {getStatusBadge(item.status)}
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <CustomerDetailsDialog
-                        trigger={
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-blue-600"
-                          >
-                            View Details
-                          </Button>
-                        }
-                        customer={{
-                          name: item.clientName,
-                          companyName: item.clientName,
-                          email: undefined,
-                          phone: item.location,
-                          address: item.location,
-                          totalPayment: item.amount,
-                          totalPaid: item.paymentDate ? item.amount : 0,
-                          outstanding: item.dueAmount,
-                          payments: [
-                            {
-                              invoice: item.invoice,
-                              date: item.paymentDate,
-                              amount: item.amount,
-                              balance: item.nextFollowUp,
-                              status:
-                                item.status === "confirmed"
-                                  ? "Confirmed"
-                                  : item.status === "notified"
-                                  ? "Notified"
-                                  : "Pending",
-                            },
-                          ],
-                        }}
-                      />
-                      {item.status === "pending" && (
-                        <>
-                          <span className="text-gray-300">|</span>
-                          <NotifyToAccountsDialog
-                            trigger={
-                              <Button
-                                variant="link"
-                                size="sm"
-                                className="text-blue-600"
-                              >
-                                Notify
-                              </Button>
-                            }
-                            onNotify={(date) => {
-                              // TODO: implement notify action for this row
-                              console.log("Notify date:", date, "for", item.id);
-                            }}
-                          />
-                        </>
-                      )}
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-12">
+                    <div className="flex flex-col items-center text-gray-500">
+                      <Search className="h-12 w-12 text-gray-300 mb-3" />
+                      <p className="text-lg font-medium">No results found</p>
+                      <p className="text-sm">
+                        Try adjusting your search or filters
+                      </p>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
