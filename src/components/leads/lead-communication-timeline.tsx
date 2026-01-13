@@ -15,6 +15,7 @@ import {
   Phone,
   type LucideIcon,
 } from "lucide-react";
+import { Link } from "react-router";
 
 type TimelineItem = {
   id: number;
@@ -75,12 +76,16 @@ export default function LeadCommunicationTimeline() {
         </div>
 
         <div className="flex items-center space-x-2" data-slot="card-action">
-          <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
-            + Add Note
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-            Log Call
-          </Button>
+          <Link to="/leads/follow-up/communication-timeline">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              + Add Note
+            </Button>
+          </Link>
+          <Link to="/leads/follow-up/communication-timeline">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              Log Call
+            </Button>
+          </Link>
         </div>
       </CardHeader>
 
