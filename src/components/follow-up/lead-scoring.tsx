@@ -6,6 +6,9 @@ import {
   CardFooter,
   CardDescription,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
+import { ArrowRight } from "lucide-react";
 
 export default function LeadScoring() {
   return (
@@ -113,7 +116,12 @@ export default function LeadScoring() {
       </CardContent>
 
       <CardFooter className="justify-center">
-        <a className="text-blue-600 hover:underline">View All Lead Scores →</a>
+        <Link to="/leads/follow-up/scoring">
+          <Button variant="link">
+            View All Lead Scores
+            <ArrowRight />
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );

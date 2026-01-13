@@ -66,15 +66,17 @@ export default function UpcomingFollowUps() {
 
   return (
     <Card className="p-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-5">
-        <div className="flex items-center gap-2">
-          <span className="text-xl">📅</span>
-          <h2 className="text-lg font-semibold">Upcoming Follow-Ups</h2>
+      <div className="flex flex-col   justify-between mb-4 gap-5">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+          <div className="flex gap-2">
+            <span className="text-xl">📅</span>
+            <h2 className="text-lg font-semibold">Upcoming Follow-Ups</h2>
+          </div>
+          <Button size="sm" className="mr-2">
+            <PlusIcon />
+            Schedule
+          </Button>
         </div>
-        <Button size="sm" className="mr-2">
-          <PlusIcon />
-          Schedule
-        </Button>
         <div className="flex gap-1 bg-gray-100 rounded-md p-1">
           <Button
             size="sm"
@@ -107,7 +109,7 @@ export default function UpcomingFollowUps() {
         </div>
       </div>
 
-      <p className="text-sm text-gray-500 mb-4">
+      <p className="text-sm text-gray-500 ">
         Quick view of scheduled activities
       </p>
 

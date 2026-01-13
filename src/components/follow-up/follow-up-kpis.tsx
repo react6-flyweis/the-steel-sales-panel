@@ -6,6 +6,9 @@ import {
   CardFooter,
   CardDescription,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ArrowRight } from "lucide-react";
+import { Link } from "react-router";
 
 export default function FollowUpKpis() {
   return (
@@ -51,9 +54,12 @@ export default function FollowUpKpis() {
       </CardContent>
 
       <CardFooter className="justify-center">
-        <a className="text-blue-600 hover:underline">
-          View Detailed Analytics →
-        </a>
+        <Link to="/leads/follow-up/kpis">
+          <Button variant="link">
+            View Detailed Analytics
+            <ArrowRight />
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
