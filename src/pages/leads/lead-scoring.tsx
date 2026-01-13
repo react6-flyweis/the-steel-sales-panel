@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -28,6 +28,7 @@ interface LeadScore {
   quoteValue: number;
   score: "Hot" | "Warm" | "Cold";
   lastActivity: string;
+  lastActivityDate?: string; // ISO date string for filtering
 }
 
 const initialLeads: LeadScore[] = [
@@ -41,6 +42,7 @@ const initialLeads: LeadScore[] = [
     quoteValue: 12500,
     score: "Hot",
     lastActivity: "2 Days Ago",
+    lastActivityDate: "2026-01-11",
   },
   {
     id: "2",
@@ -52,6 +54,7 @@ const initialLeads: LeadScore[] = [
     quoteValue: 12500,
     score: "Warm",
     lastActivity: "2 Days Ago",
+    lastActivityDate: "2026-01-11",
   },
   {
     id: "3",
@@ -63,6 +66,7 @@ const initialLeads: LeadScore[] = [
     quoteValue: 12500,
     score: "Cold",
     lastActivity: "2 Days Ago",
+    lastActivityDate: "2026-01-09",
   },
   {
     id: "4",
@@ -74,13 +78,14 @@ const initialLeads: LeadScore[] = [
     quoteValue: 12500,
     score: "Hot",
     lastActivity: "2 Days Ago",
+    lastActivityDate: "2025-12-20",
   },
 ];
 
 export default function LeadScoring() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const [status, setStatus] = useState("completed");
+  const [status, setStatus] = useState("all");
   const [client, setClient] = useState("");
 
   const [leads, setLeads] = useState<LeadScore[]>(initialLeads);
@@ -177,9 +182,9 @@ export default function LeadScoring() {
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="Proposal sent">Proposal sent</SelectItem>
+                  <SelectItem value="Quotation Sent">Quotation Sent</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -225,62 +230,96 @@ export default function LeadScoring() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {leads.map((lead) => (
-                <TableRow key={lead.id} className="hover:bg-gray-50">
-                  <TableCell>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {lead.name}
+              {useMemo(() => {
+                const filteredLeads = leads.filter((l) => {
+                  // Status filter
+                  if (status !== "all" && l.status !== status) return false;
+
+                  // Client search: match name, leadId or location
+                  if (
+                    client &&
+                    !(
+                      l.name.toLowerCase().includes(client.toLowerCase()) ||
+                      l.leadId.toLowerCase().includes(client.toLowerCase()) ||
+                      l.location.toLowerCase().includes(client.toLowerCase())
+                    )
+                  )
+                    return false;
+
+                  // Date filters (use lastActivityDate if available)
+                  if (dateFrom && l.lastActivityDate) {
+                    const from = new Date(dateFrom);
+                    const act = new Date(l.lastActivityDate);
+                    if (act < from) return false;
+                  }
+                  if (dateTo && l.lastActivityDate) {
+                    const to = new Date(dateTo);
+                    const act = new Date(l.lastActivityDate);
+                    if (act > to) return false;
+                  }
+
+                  return true;
+                });
+
+                return filteredLeads.map((lead) => (
+                  <TableRow key={lead.id} className="hover:bg-gray-50">
+                    <TableCell>
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {lead.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {lead.leadId}
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          {lead.location}
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500">{lead.leadId}</div>
-                      <div className="text-sm text-gray-400">
-                        {lead.location}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        {renderProgressDots(lead.progress)}
+                        <span className="text-sm text-gray-600">
+                          Step {lead.progress}/7
+                        </span>
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      {renderProgressDots(lead.progress)}
-                      <span className="text-sm text-gray-600">
-                        Step {lead.progress}/7
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusBadgeClass(lead.status)}>
-                      {lead.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    ${lead.quoteValue.toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={lead.score}
-                      onValueChange={(val) =>
-                        updateLeadScore(lead.id, val as LeadScore["score"])
-                      }
-                    >
-                      <SelectTrigger
-                        className={`${getScoreBadgeClass(
-                          lead.score
-                        )} rounded-full px-4`}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={getStatusBadgeClass(lead.status)}>
+                        {lead.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      ${lead.quoteValue.toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={lead.score}
+                        onValueChange={(val) =>
+                          updateLeadScore(lead.id, val as LeadScore["score"])
+                        }
                       >
-                        <SelectValue />
-                        <ChevronDown className="ml-1 h-3 w-3" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Hot">Hot</SelectItem>
-                        <SelectItem value="Warm">Warm</SelectItem>
-                        <SelectItem value="Cold">Cold</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell className="text-gray-600">
-                    {lead.lastActivity}
-                  </TableCell>
-                </TableRow>
-              ))}
+                        <SelectTrigger
+                          className={`${getScoreBadgeClass(
+                            lead.score
+                          )} rounded-full px-4`}
+                        >
+                          <SelectValue />
+                          <ChevronDown className="ml-1 h-3 w-3" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Hot">Hot</SelectItem>
+                          <SelectItem value="Warm">Warm</SelectItem>
+                          <SelectItem value="Cold">Cold</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell className="text-gray-600">
+                      {lead.lastActivity}
+                    </TableCell>
+                  </TableRow>
+                ));
+              }, [leads, status, client, dateFrom, dateTo])}
             </TableBody>
           </Table>
         </div>
