@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "react-router";
 import {
   UserPlus,
@@ -10,6 +10,7 @@ import {
   FileText,
   Redo,
   TrendingUp,
+  Search,
 } from "lucide-react";
 import ImportLeadsDialog from "@/components/leads/import-leads-dialog";
 import CreateQuotationDialog from "@/components/leads/create-quotation-dialog";
@@ -19,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/ui/stat-card";
 import ChatDialog from "@/components/leads/chat-dialog";
 import MoveToOrdersDialog from "@/components/leads/move-to-orders-dialog";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -26,7 +28,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import FilterTabs from "@/components/FilterTabs";
+import FilterTabs, { type Period } from "@/components/FilterTabs";
+import { getDashboardMetrics, type DashboardMetrics } from "@/lib/metrics";
 
 // Mock data - replace with actual API calls
 const initialLeads = [
@@ -97,15 +100,71 @@ const initialLeads = [
 ];
 
 export default function LeadsPage() {
+  const [period, setPeriod] = useState<Period>("today");
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    getDashboardMetrics(period)
+      .then((m) => {
+        if (mounted) setMetrics(m);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [period]);
   const [buildingType, setBuildingType] = useState("all");
   const [projectValue, setProjectValue] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [leads] = useState(initialLeads);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
 
+  // Filter leads based on all criteria
+  const filteredLeads = useMemo(() => {
+    return leads.filter((lead) => {
+      // Search filter
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch =
+          lead.name.toLowerCase().includes(query) ||
+          lead.id.toLowerCase().includes(query) ||
+          lead.workshop.toLowerCase().includes(query) ||
+          lead.category.toLowerCase().includes(query) ||
+          (lead.assignedToName &&
+            lead.assignedToName.toLowerCase().includes(query));
+        if (!matchesSearch) return false;
+      }
+
+      // Building type filter
+      if (buildingType !== "all") {
+        const typeMatch = lead.workshop
+          .toLowerCase()
+          .includes(buildingType.toLowerCase());
+        if (!typeMatch) return false;
+      }
+
+      // Status filter
+      if (statusFilter !== "all") {
+        const statusMatch = lead.status
+          .toLowerCase()
+          .includes(statusFilter.toLowerCase());
+        if (!statusMatch) return false;
+      }
+
+      return true;
+    });
+  }, [leads, searchQuery, buildingType, statusFilter]);
+
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedLeads(leads.map((lead) => lead.id));
+      setSelectedLeads(filteredLeads.map((lead) => lead.id));
     } else {
       setSelectedLeads([]);
     }
@@ -146,7 +205,7 @@ export default function LeadsPage() {
 
   return (
     <>
-      <FilterTabs />
+      <FilterTabs onPeriodChange={setPeriod} initialPeriod={period} />
       <div className="p-4 sm:p-6 space-y-6">
         {/* Header */}
         <div>
@@ -160,25 +219,25 @@ export default function LeadsPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Leads in Pipeline"
-            value="24"
+            value={loading ? "..." : metrics ? metrics.totalLeads : "-"}
             color="bg-blue-600"
             icon={<UserPlus className="h-5 w-5 text-blue-600" />}
           />
           <StatCard
             title="Leads Closed"
-            value="8"
+            value={loading ? "..." : metrics ? metrics.leadsClosed : "-"}
             color="bg-green-500"
             icon={<UserCheck className="h-5 w-5 text-green-500" />}
           />
           <StatCard
             title="Follow-ups Pending"
-            value="12"
+            value={loading ? "..." : metrics ? metrics.followUpsPending : "-"}
             color="bg-yellow-500"
             icon={<FileText className="h-5 w-5 text-yellow-500" />}
           />
           <StatCard
             title="AI Escalations"
-            value="5"
+            value={loading ? "..." : metrics ? metrics.aiEscalations : "-"}
             color="bg-orange-400"
             icon={<TrendingUp className="h-5 w-5 text-orange-400" />}
           />
@@ -201,49 +260,59 @@ export default function LeadsPage() {
             </Button>
           </div>
 
-          <div className="flex flex-wrap gap-3 w-full lg:w-auto">
-            <Select value={buildingType} onValueChange={setBuildingType}>
-              <SelectTrigger className="w-full sm:w-40 bg-white">
-                <SelectValue placeholder="Building types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="garages">Garages</SelectItem>
-                <SelectItem value="workshops">Workshops</SelectItem>
-                <SelectItem value="commercial">Commercial</SelectItem>
-                <SelectItem value="sales-storage">Sales Storage</SelectItem>
-                <SelectItem value="arch-buildings">Arch Buildings</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={projectValue} onValueChange={setProjectValue}>
-              <SelectTrigger className="w-full sm:w-40 bg-white">
-                <SelectValue placeholder="Project value" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="small">
-                  Small projects (&lt;$50,000)
-                </SelectItem>
-                <SelectItem value="medium">
-                  Medium ($50,000 - $200,000)
-                </SelectItem>
-                <SelectItem value="large">Large (&gt;$200,000)</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-40 bg-white">
-                <SelectValue placeholder="All Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="proposal">Proposal sent</SelectItem>
-                <SelectItem value="quotation">Quotation Sent</SelectItem>
-                <SelectItem value="closed">Closed</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="relative w-full lg:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search leads..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-white"
+            />
           </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+          <Select value={buildingType} onValueChange={setBuildingType}>
+            <SelectTrigger className="w-full sm:w-40 bg-white">
+              <SelectValue placeholder="Building types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="garages">Garages</SelectItem>
+              <SelectItem value="workshops">Workshops</SelectItem>
+              <SelectItem value="commercial">Commercial</SelectItem>
+              <SelectItem value="sales-storage">Sales Storage</SelectItem>
+              <SelectItem value="arch-buildings">Arch Buildings</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={projectValue} onValueChange={setProjectValue}>
+            <SelectTrigger className="w-full sm:w-40 bg-white">
+              <SelectValue placeholder="Project value" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="small">
+                Small projects (&lt;$50,000)
+              </SelectItem>
+              <SelectItem value="medium">
+                Medium ($50,000 - $200,000)
+              </SelectItem>
+              <SelectItem value="large">Large (&gt;$200,000)</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-full sm:w-40 bg-white">
+              <SelectValue placeholder="All Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="proposal">Proposal sent</SelectItem>
+              <SelectItem value="quotation">Quotation Sent</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Table */}
@@ -256,7 +325,10 @@ export default function LeadsPage() {
                     <th className="px-4 py-3 text-left">
                       <input
                         type="checkbox"
-                        checked={selectedLeads.length === leads.length}
+                        checked={
+                          selectedLeads.length === filteredLeads.length &&
+                          filteredLeads.length > 0
+                        }
                         onChange={(e) => handleSelectAll(e.target.checked)}
                         className="rounded border-gray-300"
                       />
@@ -285,117 +357,134 @@ export default function LeadsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {leads.map((lead, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-3 py-2 sm:px-4 sm:py-4">
-                        <input
-                          type="checkbox"
-                          checked={selectedLeads.includes(lead.id)}
-                          onChange={(e) =>
-                            handleSelectLead(lead.id, e.target.checked)
-                          }
-                          className="rounded border-gray-300"
-                        />
-                      </td>
+                  {filteredLeads.length > 0 ? (
+                    filteredLeads.map((lead, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-3 py-2 sm:px-4 sm:py-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedLeads.includes(lead.id)}
+                            onChange={(e) =>
+                              handleSelectLead(lead.id, e.target.checked)
+                            }
+                            className="rounded border-gray-300"
+                          />
+                        </td>
 
-                      <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-gray-900 uppercase">
-                            {lead.name}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            {lead.id.replace(/^ID-/, "Q-")}
-                          </span>
-                          <span className="text-sm text-gray-500">
-                            {lead.workshop} · {lead.category}
-                          </span>
-                          {lead.assignedTo && (
-                            <span className="text-sm text-gray-700 mt-1">
-                              Assigned to {lead.assignedToName}
+                        <td className="px-3 py-2 sm:px-6 sm:py-4">
+                          <div className="flex flex-col">
+                            <span className="font-semibold text-gray-900 uppercase">
+                              {lead.name}
                             </span>
-                          )}
-                        </div>
-                      </td>
+                            <span className="text-sm text-gray-500">
+                              {lead.id.replace(/^ID-/, "Q-")}
+                            </span>
+                            <span className="text-sm text-gray-500">
+                              {lead.workshop} · {lead.category}
+                            </span>
+                            {lead.assignedTo && (
+                              <span className="text-sm text-gray-700 mt-1">
+                                Assigned to {lead.assignedToName}
+                              </span>
+                            )}
+                          </div>
+                        </td>
 
-                      <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <div className="flex flex-col gap-1">
-                          {getProgressDots(lead.progress)}
-                          <a className="text-sm text-blue-600" href="#">
-                            {lead.progressStep}
-                          </a>
-                        </div>
-                      </td>
+                        <td className="px-3 py-2 sm:px-6 sm:py-4">
+                          <div className="flex flex-col gap-1">
+                            {getProgressDots(lead.progress)}
+                            <a className="text-sm text-blue-600" href="#">
+                              {lead.progressStep}
+                            </a>
+                          </div>
+                        </td>
 
-                      <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <Badge
-                          className={`${getStatusBadgeColor(
-                            lead.statusColor
-                          )} rounded-full px-4 py-1 text-sm`}
-                          variant="secondary"
-                        >
-                          {lead.status}
-                        </Badge>
-                      </td>
+                        <td className="px-3 py-2 sm:px-6 sm:py-4">
+                          <Badge
+                            className={`${getStatusBadgeColor(
+                              lead.statusColor
+                            )} rounded-full px-4 py-1 text-sm`}
+                            variant="secondary"
+                          >
+                            {lead.status}
+                          </Badge>
+                        </td>
 
-                      <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <span className="font-medium text-gray-900">
-                          {lead.quoteValue}
-                        </span>
-                      </td>
+                        <td className="px-3 py-2 sm:px-6 sm:py-4">
+                          <span className="font-medium text-gray-900">
+                            {lead.quoteValue}
+                          </span>
+                        </td>
 
-                      <td className="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-600">
-                        {lead.nextFollowUp}
-                      </td>
+                        <td className="px-3 py-2 sm:px-6 sm:py-4 text-sm text-gray-600">
+                          {lead.nextFollowUp}
+                        </td>
 
-                      <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <ChatDialog
-                          lead={lead}
-                          trigger={
-                            <button className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600">
-                              <MessageSquare className="h-4 w-4" />
-                              <span className="text-sm">Chat</span>
-                              {lead.chatCount > 0 && (
-                                <span className="ml-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-500 text-white text-xs">
-                                  {lead.chatCount}
-                                </span>
-                              )}
-                            </button>
-                          }
-                        />
-                      </td>
+                        <td className="px-3 py-2 sm:px-6 sm:py-4">
+                          <ChatDialog
+                            lead={lead}
+                            trigger={
+                              <button className="flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-600">
+                                <MessageSquare className="h-4 w-4" />
+                                <span className="text-sm">Chat</span>
+                                {lead.chatCount > 0 && (
+                                  <span className="ml-2 inline-flex items-center justify-center h-5 w-5 rounded-full bg-red-500 text-white text-xs">
+                                    {lead.chatCount}
+                                  </span>
+                                )}
+                              </button>
+                            }
+                          />
+                        </td>
 
-                      <td className="px-3 py-2 sm:px-6 sm:py-4">
-                        <div className="flex items-center gap-3">
-                          <Link to={`/leads/${lead.id}`}>
+                        <td className="px-3 py-2 sm:px-6 sm:py-4">
+                          <div className="flex items-center gap-3">
+                            <Link to={`/leads/${lead.id}`}>
+                              <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
+                                <Eye className="h-4 w-4 text-gray-600" />
+                              </button>
+                            </Link>
+
+                            <CreateQuotationDialog
+                              leadData={{ name: lead.name, id: lead.id }}
+                              trigger={
+                                <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
+                                  <Edit className="h-4 w-4 text-gray-600" />
+                                </button>
+                              }
+                            />
+
                             <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
-                              <Eye className="h-4 w-4 text-gray-600" />
+                              <FileText className="h-4 w-4 text-gray-600" />
                             </button>
-                          </Link>
 
-                          <CreateQuotationDialog
-                            leadData={{ name: lead.name, id: lead.id }}
-                            trigger={
-                              <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
-                                <Edit className="h-4 w-4 text-gray-600" />
-                              </button>
-                            }
-                          />
-
-                          <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
-                            <FileText className="h-4 w-4 text-gray-600" />
-                          </button>
-
-                          <MoveToOrdersDialog
-                            trigger={
-                              <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
-                                <Redo className="h-4 w-4 text-red-500" />
-                              </button>
-                            }
-                          />
+                            <MoveToOrdersDialog
+                              trigger={
+                                <button className="p-2 h-8 w-8 rounded-full hover:bg-gray-100">
+                                  <Redo className="h-4 w-4 text-red-500" />
+                                </button>
+                              }
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan={8}
+                        className="px-6 py-12 text-center text-gray-500"
+                      >
+                        <div className="flex flex-col items-center">
+                          <Search className="h-12 w-12 text-gray-300 mb-3" />
+                          <p className="text-lg font-medium">No leads found</p>
+                          <p className="text-sm">
+                            Try adjusting your search or filters
+                          </p>
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             </div>

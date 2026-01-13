@@ -1,7 +1,7 @@
 import StatCard from "@/components/ui/stat-card";
 import SalesFunnel from "@/components/dashboard/sales-funnel";
 import AiSupportSummary from "@/components/dashboard/ai-support-summary";
-import FilterTabs from "@/components/FilterTabs";
+import FilterTabs, { type Period } from "@/components/FilterTabs";
 import PerformanceTrends from "@/components/dashboard/performance-trends";
 import TodaysTask from "@/components/dashboard/todays-task";
 
@@ -9,12 +9,34 @@ import LeadsIcon from "@/assets/icons/dashboard/leads.svg";
 import ConfirmedIcon from "@/assets/icons/dashboard/confirmed.svg";
 import ValueIcon from "@/assets/icons/dashboard/value.svg";
 import RevenueIcon from "@/assets/icons/dashboard/revenue.svg";
+import { useEffect, useState } from "react";
+import { getDashboardMetrics, type DashboardMetrics } from "@/lib/metrics";
 
 export default function Dashboard() {
+  const [period, setPeriod] = useState<Period>("today");
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    setLoading(true);
+    getDashboardMetrics(period)
+      .then((m) => {
+        if (mounted) setMetrics(m);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [period]);
+
   return (
     <div className="">
       {/* Tabs */}
-      <FilterTabs />
+      <FilterTabs onPeriodChange={setPeriod} initialPeriod={period} />
 
       <div className="lg:pr-5 lg:pt-5 p-5 lg:p-0 space-y-5">
         {/* Header */}
@@ -30,14 +52,14 @@ export default function Dashboard() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             title="Total Leads"
-            value={"24"}
+            value={loading ? "..." : metrics ? metrics.totalLeads : "-"}
             icon={<img src={LeadsIcon} alt="leads" className="size-7" />}
             color="bg-blue-500"
           />
 
           <StatCard
             title="Leads Closed"
-            value={"8"}
+            value={loading ? "..." : metrics ? metrics.leadsClosed : "-"}
             icon={
               <img src={ConfirmedIcon} alt="confirmed" className="size-7" />
             }
@@ -46,14 +68,14 @@ export default function Dashboard() {
 
           <StatCard
             title="Follow-ups Pending"
-            value={"12"}
+            value={loading ? "..." : metrics ? metrics.followUpsPending : "-"}
             icon={<img src={ValueIcon} alt="value" className="size-7" />}
             color="bg-yellow-500"
           />
 
           <StatCard
             title="AI Escalations"
-            value={"5"}
+            value={loading ? "..." : metrics ? metrics.aiEscalations : "-"}
             icon={<img src={RevenueIcon} alt="revenue" className="size-7" />}
             color="bg-red-500"
           />
