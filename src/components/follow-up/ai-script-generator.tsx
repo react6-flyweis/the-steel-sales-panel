@@ -16,6 +16,7 @@ import {
   Copy,
   Send,
 } from "lucide-react";
+import { Link } from "react-router";
 
 export default function AiScriptGenerator() {
   const items = [
@@ -57,10 +58,12 @@ export default function AiScriptGenerator() {
         </div>
 
         <div className="flex items-center space-x-2" data-slot="card-action">
-          <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-            <SparkleIcon />
-            Generate
-          </Button>
+          <Link to="/leads/follow-up/script-generator">
+            <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+              <SparkleIcon />
+              Generate
+            </Button>
+          </Link>
         </div>
       </CardHeader>
 
