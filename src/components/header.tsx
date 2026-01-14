@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 import { NotificationMenu } from "@/components/notification-menu";
 import { UserMenu } from "@/components/user-menu";
-import steelLogo from "@/assets/the-steel-logo-dark.svg";
+import steelLogo from "@/assets/steel-building-depot-logo.png";
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -46,11 +46,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
           {/* The Steel Logo */}
           <div>
-            <img
-              src={steelLogo}
-              alt="The Steel Logo"
-              className="max-h-8 md:max-h-10 max-w-20 md:max-w-24 w-auto"
-            />
+            <img src={steelLogo} alt="The Steel Logo" className="h-8  w-auto" />
           </div>
         </div>
       </div>
