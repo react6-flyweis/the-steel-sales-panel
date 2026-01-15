@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import Calendar28 from "@/components/calendar-input";
 import { Button } from "@/components/ui/button";
+import SuccessDialog from "@/components/success-dialog";
 
 type Props = {
   trigger?: React.ReactNode;
@@ -23,6 +24,7 @@ export default function NotifyToAccountsDialog({
   onNotify,
 }: Props) {
   const [date, setDate] = React.useState(defaultDate);
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
   const isoDefault = React.useMemo(() => {
     const m = defaultDate.match(/^(\d{2})-(\d{2})-(\d{4})$/);
@@ -30,44 +32,50 @@ export default function NotifyToAccountsDialog({
     return defaultDate;
   }, [defaultDate]);
 
+  const handleNotify = () => {
+    onNotify?.(date);
+    setShowSuccess(true);
+  };
+
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <button className="text-blue-600 hover:text-blue-700 font-medium">
-          {trigger}
-        </button>
-      </DialogTrigger>
+    <>
+      <Dialog>
+        <DialogTrigger asChild>
+          <button className="text-blue-600 hover:text-blue-700 font-medium">
+            {trigger}
+          </button>
+        </DialogTrigger>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-lg font-semibold">
-            Notify To Accounts
-          </DialogTitle>
-        </DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold">
+              Notify To Accounts
+            </DialogTitle>
+          </DialogHeader>
 
-        <div className="pt-4">
-          <Calendar28
-            defaultDate={isoDefault}
-            onChange={(value) => setDate(value)}
-          />
-        </div>
+          <div className="pt-4">
+            <Calendar28
+              defaultDate={isoDefault}
+              onChange={(value) => setDate(value)}
+            />
+          </div>
 
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
 
-          <DialogClose asChild>
-            <Button
-              onClick={() => {
-                onNotify?.(date);
-              }}
-            >
-              Notify
-            </Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+            <DialogClose asChild>
+              <Button onClick={handleNotify}>Notify</Button>
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <SuccessDialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Notification Sent Successfully!"
+      />
+    </>
   );
 }
