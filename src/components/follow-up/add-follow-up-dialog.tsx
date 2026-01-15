@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import SuccessDialog from "@/components/success-dialog";
 import {
   Select,
   SelectTrigger,
@@ -26,6 +27,7 @@ type Props = {
 };
 
 export default function AddFollowUpDialog({ open, onOpenChange }: Props) {
+  const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
     customer: "",
     type: "call",
@@ -49,6 +51,7 @@ export default function AddFollowUpDialog({ open, onOpenChange }: Props) {
       notes: "",
       priority: "medium",
     });
+    setShowSuccess(true);
   };
 
   return (
@@ -163,6 +166,11 @@ export default function AddFollowUpDialog({ open, onOpenChange }: Props) {
           </DialogFooter>
         </form>
       </DialogContent>
+      <SuccessDialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Follow-up Added Successfully!"
+      />
     </Dialog>
   );
 }
