@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/chart";
 import { cn } from "@/lib/utils";
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
-import { useState } from "react";
 
 const overviewChartConfig = {
   customers: {
@@ -39,44 +38,22 @@ const monthlyData = [
 ];
 
 export function SalesRevenueChart() {
-  const [selected, setSelected] = useState<string | null>(null);
-
-  const handleToggle = (key: string) => {
-    setSelected((s) => (s === key ? null : key));
-  };
-
   const summaryStats = [
     {
-      label: "Customers",
-      value: "240",
-      key: "customers",
+      label: "Total Sales this Month",
+      value: "240k",
+      key: "month",
       accentClass: "text-blue-600",
       accentBorder: "bg-gradient-to-r from-blue-500 to-sky-400",
       highlight: true,
     },
     {
-      label: "Revenue",
-      value: "250k",
-      key: "revenue",
-      accentClass: "text-orange-500",
-      accentBorder: "bg-orange-200/80",
-      highlight: false,
-    },
-    {
-      label: "Income",
-      value: "190k",
-      key: "income",
-      accentClass: "text-emerald-500",
+      label: "Total Sales this Year",
+      value: "1900k",
+      key: "year",
+      accentClass: "text-emerald-600",
       accentBorder: "bg-emerald-200/80",
-      highlight: false,
-    },
-    {
-      label: "Expense",
-      value: "160k",
-      key: "expense",
-      accentClass: "text-rose-500",
-      accentBorder: "bg-rose-200/80",
-      highlight: false,
+      highlight: true,
     },
   ];
 
@@ -91,26 +68,13 @@ export function SalesRevenueChart() {
 
       <div className="mt-3 grid gap-5 text-sm sm:grid-cols-2 lg:grid-cols-4">
         {summaryStats.map((stat) => {
-          const key = stat.key;
-          const isSelected =
-            selected === null ? stat.highlight : selected === key;
           return (
             <div
               key={stat.label}
-              role="button"
-              tabIndex={0}
-              onClick={() => handleToggle(key)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  handleToggle(key);
-                }
-              }}
               className={cn(
-                "bg-white/80 p-2 shadow-[0_10px_40px_rgba(15,23,42,0.05)] cursor-pointer transition-all",
-                isSelected
-                  ? "border-blue-100 bg-linear-to-br from-white to-blue-50"
-                  : "border-slate-100 hover:border-slate-200 opacity-70"
+                "bg-white/80 p-2 shadow-[0_10px_40px_rgba(15,23,42,0.05)] transition-all",
+                "border-slate-100",
+                "opacity-100"
               )}
             >
               <div className="mt-1 flex flex-col gap-1">
@@ -126,12 +90,7 @@ export function SalesRevenueChart() {
                   {stat.label}
                 </span>
               </div>
-              <div
-                className={cn(
-                  "mt-2 h-1 rounded-full",
-                  isSelected ? stat.accentBorder : "bg-slate-100"
-                )}
-              />
+              <div className={cn("mt-2 h-1 rounded-full", stat.accentBorder)} />
             </div>
           );
         })}
@@ -180,32 +139,16 @@ export function SalesRevenueChart() {
 
             <Line
               dataKey="customers"
-              stroke="var(--color-customers)"
+              stroke="#2563EB"
               strokeWidth={4}
-              strokeOpacity={
-                selected === "customers" || selected === null ? 1 : 0.12
-              }
+              strokeOpacity={1}
               dot={false}
             />
             <Line
               dataKey="revenue"
-              stroke="var(--color-revenue)"
-              strokeWidth={3}
-              strokeOpacity={selected === "revenue" ? 1 : 0.12}
-              dot={false}
-            />
-            <Line
-              dataKey="income"
-              stroke="var(--color-income)"
-              strokeWidth={3}
-              strokeOpacity={selected === "income" ? 1 : 0.12}
-              dot={false}
-            />
-            <Line
-              dataKey="expense"
-              stroke="var(--color-expense)"
-              strokeWidth={3}
-              strokeOpacity={selected === "expense" ? 1 : 0.12}
+              stroke="#10B981"
+              strokeWidth={4}
+              strokeOpacity={1}
               dot={false}
             />
           </LineChart>
