@@ -10,6 +10,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import SuccessDialog from "@/components/success-dialog";
 import {
   Select,
   SelectTrigger,
@@ -25,6 +26,8 @@ type Props = {
 };
 
 export default function AssignSalesDialog({ trigger }: Props) {
+  const [open, setOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [salesPerson, setSalesPerson] = useState("James Lee");
   const [priority, setPriority] = useState("Low");
   const [panel, setPanel] = useState("Plant");
@@ -33,10 +36,12 @@ export default function AssignSalesDialog({ trigger }: Props) {
   const onAssign = () => {
     // TODO: wire API call to assign lead
     console.log("Assigning", { salesPerson, priority, panel, notes });
+    setOpen(false);
+    setShowSuccess(true);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button className="bg-blue-600 hover:bg-blue-700">Assign</Button>
@@ -119,6 +124,11 @@ export default function AssignSalesDialog({ trigger }: Props) {
           </Button>
         </DialogFooter>
       </DialogContent>
+      <SuccessDialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Lead Assigned Successfully!"
+      />
     </Dialog>
   );
 }
