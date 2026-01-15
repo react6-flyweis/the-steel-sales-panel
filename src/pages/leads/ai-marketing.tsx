@@ -26,7 +26,7 @@ export default function AIMarketing() {
     setShowUploadDialog(false);
   }
 
-  function handleUpload(file: File | null) {
+  function handleUpload(_file: File | null) {
     // Placeholder: integrate actual upload logic here.
     // On successful upload, show success dialog.
     setShowSuccess(true);
