@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import SuccessDialog from "@/components/success-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,6 +43,7 @@ export default function AddCustomerDialog({
   trigger?: React.ReactNode;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [showSuccess, setShowSuccess] = React.useState(false);
 
   type FormValues = {
     customerName: string;
@@ -74,59 +76,119 @@ export default function AddCustomerDialog({
     onAdd(newCustomer);
     setOpen(false);
     form.reset();
+    setShowSuccess(true);
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add New Customer</DialogTitle>
-        </DialogHeader>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-2">
-          <FieldGroup>
-            <Controller
-              control={form.control}
-              name="customerName"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="customerName">Customer Name</FieldLabel>
-                  <Input
-                    {...field}
-                    id="customerName"
-                    placeholder="John Doe"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : null}
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Customer</DialogTitle>
+          </DialogHeader>
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="space-y-4 pt-2"
+          >
+            <FieldGroup>
               <Controller
                 control={form.control}
-                name="inquiryFor"
+                name="customerName"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="inquiryFor">
-                      Customer Request
+                    <FieldLabel htmlFor="customerName">
+                      Customer Name
                     </FieldLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <SelectTrigger
-                        id="inquiryFor"
-                        className="w-full"
-                        aria-invalid={fieldState.invalid}
+                    <Input
+                      {...field}
+                      id="customerName"
+                      placeholder="John Doe"
+                      aria-invalid={fieldState.invalid}
+                    />
+                    {fieldState.invalid && (
+                      <FieldError errors={[fieldState.error]} />
+                    )}
+                  </Field>
+                )}
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Controller
+                  control={form.control}
+                  name="inquiryFor"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="inquiryFor">
+                        Customer Request
+                      </FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
                       >
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Wearhouse">Wearhouse</SelectItem>
-                        <SelectItem value="Garage">Garage</SelectItem>
-                        <SelectItem value="Custom">Custom</SelectItem>
-                      </SelectContent>
-                    </Select>
+                        <SelectTrigger
+                          id="inquiryFor"
+                          className="w-full"
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Wearhouse">Wearhouse</SelectItem>
+                          <SelectItem value="Garage">Garage</SelectItem>
+                          <SelectItem value="Custom">Custom</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  control={form.control}
+                  name="status"
+                  render={({ field, fieldState }) => (
+                    <Field data-invalid={fieldState.invalid}>
+                      <FieldLabel htmlFor="status">Customer Status</FieldLabel>
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <SelectTrigger
+                          id="status"
+                          className="w-full"
+                          aria-invalid={fieldState.invalid}
+                        >
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="New">New</SelectItem>
+                          <SelectItem value="Active">Active</SelectItem>
+                          <SelectItem value="Inactive">Inactive</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      {fieldState.invalid && (
+                        <FieldError errors={[fieldState.error]} />
+                      )}
+                    </Field>
+                  )}
+                />
+              </div>
+
+              <Controller
+                control={form.control}
+                name="notes"
+                render={({ field, fieldState }) => (
+                  <Field data-invalid={fieldState.invalid}>
+                    <FieldLabel htmlFor="notes">Notes</FieldLabel>
+                    <Textarea
+                      {...field}
+                      id="notes"
+                      placeholder="Notes about the customer"
+                      aria-invalid={fieldState.invalid}
+                    />
                     {fieldState.invalid && (
                       <FieldError errors={[fieldState.error]} />
                     )}
@@ -136,22 +198,22 @@ export default function AddCustomerDialog({
 
               <Controller
                 control={form.control}
-                name="status"
+                name="assignTo"
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor="status">Customer Status</FieldLabel>
+                    <FieldLabel htmlFor="assignTo">Assign Lead to</FieldLabel>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger
-                        id="status"
+                        id="assignTo"
                         className="w-full"
                         aria-invalid={fieldState.invalid}
                       >
-                        <SelectValue />
+                        <SelectValue placeholder="Unassigned" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="New">New</SelectItem>
-                        <SelectItem value="Active">Active</SelectItem>
-                        <SelectItem value="Inactive">Inactive</SelectItem>
+                        <SelectItem value="james">James Lee</SelectItem>
+                        <SelectItem value="linda">Linda Park</SelectItem>
+                        <SelectItem value="mike">Mike Ross</SelectItem>
                       </SelectContent>
                     </Select>
                     {fieldState.invalid && (
@@ -160,72 +222,31 @@ export default function AddCustomerDialog({
                   </Field>
                 )}
               />
-            </div>
+            </FieldGroup>
 
-            <Controller
-              control={form.control}
-              name="notes"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="notes">Notes</FieldLabel>
-                  <Textarea
-                    {...field}
-                    id="notes"
-                    placeholder="Notes about the customer"
-                    aria-invalid={fieldState.invalid}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              control={form.control}
-              name="assignTo"
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="assignTo">Assign Lead to</FieldLabel>
-                  <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger
-                      id="assignTo"
-                      className="w-full"
-                      aria-invalid={fieldState.invalid}
-                    >
-                      <SelectValue placeholder="Unassigned" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="james">James Lee</SelectItem>
-                      <SelectItem value="linda">Linda Park</SelectItem>
-                      <SelectItem value="mike">Mike Ross</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
-
-          <DialogFooter>
-            <div className="w-full flex justify-end gap-3">
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setOpen(false);
-                  form.reset();
-                }}
-                type="button"
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Add & Assign</Button>
-            </div>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <DialogFooter>
+              <div className="w-full flex justify-end gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setOpen(false);
+                    form.reset();
+                  }}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button type="submit">Add & Assign</Button>
+              </div>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <SuccessDialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Customer Added Successfully!"
+      />
+    </>
   );
 }
