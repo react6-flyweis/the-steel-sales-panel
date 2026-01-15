@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowLeft, Minus, Plus } from "lucide-react";
 import { useNavigate } from "react-router";
+import SuccessDialog from "@/components/success-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function AddNewLead() {
   const navigate = useNavigate();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -65,11 +67,16 @@ export default function AddNewLead() {
     e.preventDefault();
     // TODO: Implement API call to save the lead
     console.log("Form submitted:", formData);
-    // Navigate back to leads page after submission
-    navigate("/leads");
+    // Show success dialog
+    setShowSuccess(true);
   };
 
   const handleCancel = () => {
+    navigate("/leads");
+  };
+
+  const handleSuccessClose = () => {
+    setShowSuccess(false);
     navigate("/leads");
   };
 
@@ -589,6 +596,11 @@ export default function AddNewLead() {
           </div>
         </form>
       </div>
+      <SuccessDialog
+        open={showSuccess}
+        onClose={handleSuccessClose}
+        title="Lead Added Successfully!"
+      />
     </div>
   );
 }
