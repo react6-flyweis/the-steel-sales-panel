@@ -10,10 +10,30 @@ import CSATTrendChart from "@/components/ai-marketing/csat-trend-chart";
 import EscalationsByCategory from "@/components/ai-marketing/escalations-by-category";
 import AIQueryLog from "@/components/ai-marketing/ai-query-log";
 import AILearningHistory from "@/components/ai-marketing/ai-learning-history";
+import { useState } from "react";
+import UploadTrainingDialog from "@/components/upload-training-dialog";
+import SuccessDialog from "@/components/success-dialog";
 
 export default function AIMarketing() {
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  function handleOpenUpload() {
+    setShowUploadDialog(true);
+  }
+
+  function handleCloseUpload() {
+    setShowUploadDialog(false);
+  }
+
+  function handleUpload(file: File | null) {
+    // Placeholder: integrate actual upload logic here.
+    // On successful upload, show success dialog.
+    setShowSuccess(true);
+  }
+
   return (
-    <div className="pr-5 pt-5 p-5 lg:p-0 space-y-6  min-h-screen">
+    <div className="pr-5 pt-5 p-5  space-y-6  min-h-screen">
       <div className="gap-5 flex flex-col md:flex-row md:items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-slate-900">
@@ -23,11 +43,31 @@ export default function AIMarketing() {
             Analyze AI query handling, performance metrics, and training data.
           </p>
         </div>
-        <Button className="px-3 rounded-lg" size="lg">
+        <Button
+          className="px-3 rounded-lg"
+          size="lg"
+          onClick={handleOpenUpload}
+        >
           <Upload />
           Upload Training File
         </Button>
       </div>
+
+      <UploadTrainingDialog
+        open={showUploadDialog}
+        onClose={handleCloseUpload}
+        onUpload={(file) => {
+          handleUpload(file);
+          handleCloseUpload();
+        }}
+      />
+
+      <SuccessDialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Training file uploaded"
+        okLabel="Done"
+      />
 
       <AIStatsGrid />
 
