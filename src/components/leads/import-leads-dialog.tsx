@@ -12,9 +12,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
 import uploadIcon from "@/assets/icons/upload.svg";
+import SuccessDialog from "@/components/success-dialog";
 
 export default function ImportLeadsDialog() {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [open, setOpen] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -36,8 +39,15 @@ export default function ImportLeadsDialog() {
     setIsDragging(true);
   };
 
+  const handleImport = () => {
+    // TODO: wire API call to import leads
+    console.log("Importing file:", fileName);
+    setOpen(false);
+    setShowSuccess(true);
+  };
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="bg-white">
           <Upload className="h-4 w-4 mr-2" />
@@ -114,13 +124,21 @@ export default function ImportLeadsDialog() {
             </Button>
           </DialogClose>
 
-          <DialogClose asChild>
-            <Button size="lg" className="w-40">
-              Assign Lead
-            </Button>
-          </DialogClose>
+          <Button
+            size="lg"
+            className="w-40"
+            onClick={handleImport}
+            disabled={!fileName}
+          >
+            Import Leads
+          </Button>
         </DialogFooter>
       </DialogContent>
+      <SuccessDialog
+        open={showSuccess}
+        onClose={() => setShowSuccess(false)}
+        title="Leads Imported Successfully!"
+      />
     </Dialog>
   );
 }
