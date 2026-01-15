@@ -15,6 +15,7 @@ import {
   SparkleIcon,
   Copy,
   Send,
+  ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router";
 
@@ -130,7 +131,12 @@ export default function AiScriptGenerator() {
       </CardContent>
 
       <CardFooter className="justify-center">
-        <a className="text-primary hover:underline">View All Scripts →</a>
+        <Link to="/leads/follow-up/script-generator">
+          <Button variant="link">
+            View All Scripts
+            <ArrowRight />
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
