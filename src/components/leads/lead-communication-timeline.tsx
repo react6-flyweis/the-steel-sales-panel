@@ -14,6 +14,7 @@ import {
   Mail,
   Phone,
   type LucideIcon,
+  ArrowRight,
 } from "lucide-react";
 import { Link } from "react-router";
 
@@ -126,7 +127,12 @@ export default function LeadCommunicationTimeline() {
       </CardContent>
 
       <CardFooter className="justify-center">
-        <a className="text-primary hover:underline">View Full Timeline →</a>
+        <Link to="/leads/follow-up/communication-timeline">
+          <Button variant="link">
+            View Full Timeline
+            <ArrowRight />
+          </Button>
+        </Link>
       </CardFooter>
     </Card>
   );
