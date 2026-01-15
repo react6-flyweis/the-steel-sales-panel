@@ -1,13 +1,48 @@
 import { Card } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { useMemo, useState } from "react";
 
-// Sample data for the pie chart (values/colors updated to match design)
-const salesDistributionData = [
-  { name: "Option A", value: 60, color: "#3b82f6" }, // Blue
-  { name: "Option B", value: 20, color: "#fda4af" }, // Pink
-  { name: "Option C", value: 20, color: "#f97316" }, // Orange
+// base values/colors to derive monthly randomized data
+const BASE_DATA = [
+  { name: "Sales", base: 60, color: "#3b82f6" }, // Blue
+  { name: "Revenue", base: 20, color: "#fda4af" }, // Pink
+  { name: "Expense", base: 20, color: "#f97316" }, // Orange
 ];
+
+function seededRandom(seed: number) {
+  return () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+}
+
+function generateData(year: number, month: number) {
+  const seed = year * 100 + month + 1;
+  const rnd = seededRandom(seed);
+
+  const raw = BASE_DATA.map((d) => {
+    const variance = (rnd() - 0.5) * 20; // -10..+10
+    return Math.max(0, d.base + variance);
+  });
+
+  const sum = raw.reduce((a, b) => a + b, 0);
+  // round percentages while ensuring total 100
+  const rounded: number[] = raw.map((v) => Math.round((v / sum) * 100));
+  const totalRounded = rounded.reduce((a, b) => a + b, 0);
+  const diff = 100 - totalRounded;
+  if (diff !== 0) {
+    // adjust the largest slice to account for rounding drift
+    const maxIdx = rounded.indexOf(Math.max(...rounded));
+    rounded[maxIdx] += diff;
+  }
+
+  return BASE_DATA.map((d, i) => ({
+    name: d.name,
+    value: rounded[i],
+    color: d.color,
+  }));
+}
 
 const renderCustomizedLabel = ({
   cx,
@@ -34,15 +69,22 @@ const renderCustomizedLabel = ({
 
   return (
     <g key={`label-${index}`}>
-      <circle cx={x} cy={y} r={20} fill="#fff" stroke="#eef2f7" />
+      <circle
+        cx={x}
+        cy={y}
+        r={22}
+        fill="#f3e8ff"
+        stroke="#eef2f7"
+        style={{ filter: "drop-shadow(0 4px 8px rgba(16,24,40,0.08))" }}
+      />
       <text
         x={x}
         y={y}
         textAnchor="middle"
         dominantBaseline="central"
-        fill="#111"
+        fill="#111827"
         fontSize={12}
-        fontWeight={600}
+        fontWeight={700}
       >
         {value}
       </text>
@@ -51,32 +93,90 @@ const renderCustomizedLabel = ({
 };
 
 export function SalesDistributionChart() {
-  const now = new Date();
-  const monthName = now.toLocaleString(undefined, { month: "long" });
-  const year = now.getFullYear();
+  const [currentDate, setCurrentDate] = useState(() => new Date());
+
+  const monthName = currentDate.toLocaleString(undefined, { month: "long" });
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const salesDistributionData = useMemo(
+    () => generateData(year, month),
+    [year, month]
+  );
+
+  // total used to compute example currency values in the legend
+  const TOTAL_AMOUNT = 1300;
+
+  const formatCurrency = (value: number) =>
+    value.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+  const prevMonth = () =>
+    setCurrentDate((d) => {
+      const nd = new Date(d);
+      nd.setMonth(d.getMonth() - 1);
+      return nd;
+    });
+  const nextMonth = () =>
+    setCurrentDate((d) => {
+      const nd = new Date(d);
+      nd.setMonth(d.getMonth() + 1);
+      return nd;
+    });
+  const prevYear = () =>
+    setCurrentDate((d) => {
+      const nd = new Date(d);
+      nd.setFullYear(d.getFullYear() - 1);
+      return nd;
+    });
+  const nextYear = () =>
+    setCurrentDate((d) => {
+      const nd = new Date(d);
+      nd.setFullYear(d.getFullYear() + 1);
+      return nd;
+    });
 
   return (
     <Card className="p-6">
       {/* Header: left month selector, centered title, right year selector */}
-      <div className="grid grid-cols-3 items-center gap-4 mb-6">
-        <div className="flex items-center gap-2 justify-start bg-gray-50 px-3 py-1.5 rounded-lg">
-          <button className="hover:bg-gray-200 rounded p-0.5">
+      <div className="grid grid-cols-3 items-end gap-4 mb-6">
+        <div className="flex items-center gap-2 justify-start  px-3 py-1.5 rounded-lg">
+          <button
+            onClick={prevMonth}
+            aria-label="Previous month"
+            className="hover:bg-gray-200 rounded p-0.5"
+          >
             <ChevronLeft className="h-4 w-4 text-gray-600" />
           </button>
           <span className="text-sm font-medium text-gray-700">{monthName}</span>
-          <button className="hover:bg-gray-200 rounded p-0.5">
+          <button
+            onClick={nextMonth}
+            aria-label="Next month"
+            className="hover:bg-gray-200 rounded p-0.5"
+          >
             <ChevronRight className="h-4 w-4 text-gray-600" />
           </button>
         </div>
 
-        <h3 className="text-lg font-semibold text-center">Sales</h3>
+        <h3 className="text-xl font-semibold text-center">
+          Sales &
+          <br />
+          Revenue
+        </h3>
 
-        <div className="flex items-center gap-2 justify-end bg-gray-50 px-3 py-1.5 rounded-lg">
-          <button className="hover:bg-gray-200 rounded p-0.5">
+        <div className="flex items-center gap-2 justify-end  px-3 py-1.5 rounded-lg">
+          <button
+            onClick={prevYear}
+            aria-label="Previous year"
+            className="hover:bg-gray-200 rounded p-0.5"
+          >
             <ChevronLeft className="h-4 w-4 text-gray-600" />
           </button>
           <span className="text-sm font-medium text-gray-700">{year}</span>
-          <button className="hover:bg-gray-200 rounded p-0.5">
+          <button
+            onClick={nextYear}
+            aria-label="Next year"
+            className="hover:bg-gray-200 rounded p-0.5"
+          >
             <ChevronRight className="h-4 w-4 text-gray-600" />
           </button>
         </div>
@@ -106,21 +206,39 @@ export function SalesDistributionChart() {
       </div>
 
       {/* Legend */}
-      <div className="space-y-3 mt-6">
-        {salesDistributionData.map((item) => (
-          <div key={item.name} className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: item.color }}
-              />
-              <span className="text-sm text-gray-600">{item.name}</span>
-            </div>
-            <span className="text-sm font-semibold text-gray-900">
-              {item.value}%
-            </span>
+      <div className="mt-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-3">
+            {salesDistributionData.map((item) => (
+              <div key={item.name} className="flex items-center gap-3">
+                <div
+                  className="w-3 h-3 rounded-full"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-sm font-medium text-gray-600">
+                  {item.name}
+                </span>
+                <span className="ml-2 text-sm text-gray-500">
+                  {item.value}%
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
+
+          <div className="space-y-3 text-right">
+            {salesDistributionData.map((item) => {
+              const amt = (item.value / 100) * TOTAL_AMOUNT;
+              return (
+                <div
+                  key={item.name}
+                  className="text-sm font-semibold text-gray-900"
+                >
+                  {formatCurrency(amt)}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </Card>
   );
