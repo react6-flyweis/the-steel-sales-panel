@@ -103,50 +103,49 @@ export default function SmartReminders() {
           </CardHeader>
 
           <CardContent>
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               {reminders.map((reminder) => (
-                <div
+                <Link
                   key={reminder.id}
-                  className="w-full bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3"
+                  to={`/leads/follow-up/smart-reminders/${reminder.id}`}
                 >
-                  <div className="flex-1 pr-0 sm:pr-4">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-gray-900 text-base">
-                        <Link
-                          to={`/leads/follow-up/smart-reminders/${reminder.id}`}
-                          className="hover:underline"
-                        >
+                  <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100 px-4 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div className="flex-1 pr-0 sm:pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-semibold text-gray-900 text-base">
                           {reminder.contactName}
-                        </Link>
-                      </h3>
-                      <Badge className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full text-sm">
-                        <span className="font-semibold">{reminder.score}%</span>
-                        <Check className="h-4 w-4 text-green-700" />
-                      </Badge>
+                        </h3>
+                        <Badge className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full text-sm">
+                          <span className="font-semibold">
+                            {reminder.score}%
+                          </span>
+                          <Check className="h-4 w-4 text-green-700" />
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-wrap text-gray-600 mt-1 truncate">
+                        Best time to follow up is{" "}
+                        <span className="font-medium">{reminder.bestTime}</span>{" "}
+                        {reminder.reason}
+                      </p>
                     </div>
-                    <p className="text-sm text-wrap text-gray-600 mt-1 truncate">
-                      Best time to follow up is{" "}
-                      <span className="font-medium">{reminder.bestTime}</span>{" "}
-                      {reminder.reason}
-                    </p>
-                  </div>
 
-                  <div className="flex items-center gap-3 mt-3 sm:mt-0 sm:justify-end">
-                    <Button
-                      onClick={() => handleApply(reminder.id)}
-                      className="flex-1 px-5 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white shadow"
-                    >
-                      Apply
-                    </Button>
-                    <Button
-                      onClick={() => handleSnooze(reminder.id)}
-                      variant="outline"
-                      className="flex-1 rounded-md bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200"
-                    >
-                      Snooze
-                    </Button>
+                    <div className="flex items-center gap-3 mt-3 sm:mt-0 sm:justify-end">
+                      <Button
+                        onClick={() => handleApply(reminder.id)}
+                        className="flex-1 px-5 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white shadow"
+                      >
+                        Apply
+                      </Button>
+                      <Button
+                        onClick={() => handleSnooze(reminder.id)}
+                        variant="outline"
+                        className="flex-1 rounded-md bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200"
+                      >
+                        Snooze
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
 
