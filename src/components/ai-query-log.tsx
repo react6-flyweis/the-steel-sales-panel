@@ -10,6 +10,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router";
 
 type Query = {
   id: string;
@@ -176,9 +177,11 @@ export default function AiQueryLog() {
                     <td className="py-5 text-slate-600">{q.ts}</td>
                     <td className="py-5 pr-4 text-right">
                       {escalated ? (
-                        <Button className="bg-blue-600 text-white">
-                          Take over
-                        </Button>
+                        <Link to="/leads/1/chats">
+                          <Button className="bg-blue-600 text-white">
+                            Take over
+                          </Button>
+                        </Link>
                       ) : (
                         <Button className="bg-gray-100 hover:bg-gray-200 text-gray-800">
                           Marked as Resolved
