@@ -27,6 +27,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router";
 
 interface PaymentFollowUp {
   id: string;
@@ -191,10 +192,12 @@ export default function PaymentFollowUp() {
             </div>
           </div>
 
-          <Button className="flex items-center gap-2" variant="default">
-            <Plus className="w-4 h-4" />
-            Add Follow-Up
-          </Button>
+          <Link to="/leads/add">
+            <Button className="flex items-center gap-2" variant="default">
+              <Plus className="w-4 h-4" />
+              Add Follow-Up
+            </Button>
+          </Link>
         </div>
       </div>
 
