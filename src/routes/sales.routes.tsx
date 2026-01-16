@@ -57,14 +57,14 @@ const PaymentFollowUp = lazy(
 
 export const salesRoutes: RouteObject[] = [
   {
-    path: "/sign-in",
+    path: "/",
     element: <SignIn />,
   },
   {
     path: "/",
     element: <AdminLayout />,
     children: [
-      { index: true, element: <Dashboard /> },
+      { path: "dashboard", element: <Dashboard /> },
 
       // leads routes
       {

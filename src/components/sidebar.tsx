@@ -56,8 +56,8 @@ const navigationGroups: NavigationGroup[] = [
     icon: dashboardIcon,
     label: "Dashboard",
     color: "bg-[#1e3a8a]",
-    link: "/",
-    items: [{ path: "/", label: "Dashboard" }],
+    link: "/dashboard",
+    items: [{ path: "/dashboard", label: "Dashboard" }],
   },
 
   {
