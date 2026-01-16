@@ -1,4 +1,13 @@
 import checkCircleImage from "@/assets/images/check-circle.png";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "./ui/button";
 
 type SuccessDialogProps = {
   open: boolean;
@@ -13,41 +22,31 @@ export default function SuccessDialog({
   title = "Success!",
   okLabel = "Ok",
 }: SuccessDialogProps) {
-  if (!open) return null;
-
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      className="fixed inset-0 z-50 flex items-center justify-center p-6"
-    >
-      <div
-        className="absolute inset-0 bg-black/40 transition-opacity"
-        onClick={onClose}
-      />
-
-      <div className="relative z-10 w-full max-w-md rounded-2xl bg-white p-8 text-center shadow-lg">
-        <h2 className="mx-auto mb-6 max-w-xs text-2xl font-semibold leading-tight text-slate-900">
-          {title}
-        </h2>
+    <Dialog open={open} onOpenChange={(val) => !val && onClose()}>
+      <DialogContent className="w-full max-w-md rounded-2xl p-8 text-center shadow-lg">
+        <DialogHeader>
+          <DialogTitle className="mx-auto mb-6 max-w-xs text-2xl font-semibold leading-tight text-slate-900">
+            {title}
+          </DialogTitle>
+        </DialogHeader>
 
         <div className="mx-auto mb-7 flex h-28 w-28 items-center justify-center">
           <img
             src={checkCircleImage}
             alt="success"
-            className="h-28 w-28 rounded-full object-contain"
+            className="size-44 rounded-full object-cover"
           />
         </div>
 
-        <div className="mt-1">
-          <button
-            onClick={onClose}
-            className="mx-auto mt-3 inline-flex w-52 items-center justify-center rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 px-6 py-3 text-white shadow-md hover:opacity-95"
-          >
-            {okLabel}
-          </button>
-        </div>
-      </div>
-    </div>
+        <DialogFooter className="sm:justify-center">
+          <DialogClose asChild>
+            <Button onClick={onClose} className="mt-3 w-52">
+              {okLabel}
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
