@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Send, Menu, Sparkles, Mail, Phone, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
+import FollowUpDialog from "@/components/follow-up/follow-up-dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -180,10 +181,13 @@ export default function AiScriptGeneratorPage() {
                 AI Follow-Up Script Generator
               </h2>
             </div>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
-              <Sparkles className="h-4 w-4" />
-              Use Script
-            </Button>
+
+            <FollowUpDialog showClientSelector={true}>
+              <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+                <Sparkles className="h-4 w-4" />
+                Use Script
+              </Button>
+            </FollowUpDialog>
           </div>
 
           {/* Messages Container */}
