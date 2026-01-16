@@ -55,6 +55,7 @@ export default function Dashboard() {
             value={loading ? "..." : metrics ? metrics.totalLeads : "-"}
             icon={<img src={LeadsIcon} alt="leads" className="size-7" />}
             color="bg-blue-500"
+            navigateTo="/leads"
           />
 
           <StatCard
@@ -64,6 +65,7 @@ export default function Dashboard() {
               <img src={ConfirmedIcon} alt="confirmed" className="size-7" />
             }
             color="bg-green-500"
+            navigateTo="/leads"
           />
 
           <StatCard
@@ -71,6 +73,7 @@ export default function Dashboard() {
             value={loading ? "..." : metrics ? metrics.followUpsPending : "-"}
             icon={<img src={ValueIcon} alt="value" className="size-7" />}
             color="bg-yellow-500"
+            navigateTo="/leads/follow-up"
           />
 
           <StatCard
@@ -78,6 +81,7 @@ export default function Dashboard() {
             value={loading ? "..." : metrics ? metrics.aiEscalations : "-"}
             icon={<img src={RevenueIcon} alt="revenue" className="size-7" />}
             color="bg-red-500"
+            navigateTo="/leads/escalated-queries"
           />
         </div>
 
