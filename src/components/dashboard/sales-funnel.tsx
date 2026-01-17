@@ -17,8 +17,7 @@ type SalesFunnelProps = {
 };
 
 export default function SalesFunnel({
-  title = "Sales Conversion Funnel",
-  timeframeOptions = ["This Month"],
+  title = "Conversion Funnel",
   items,
 }: SalesFunnelProps) {
   const defaultItems: FunnelItem[] = [
@@ -55,17 +54,12 @@ export default function SalesFunnel({
   const rows = items ?? defaultItems;
 
   return (
-    <Card className="p-4 gap-0">
+    <Card className="p-4 gap-0 rounded-lg">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
-        <select className="px-3 py-1 border rounded-md text-sm">
-          {timeframeOptions.map((opt) => (
-            <option key={opt}>{opt}</option>
-          ))}
-        </select>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         {rows.map((r) => (
           <Link to="/leads" key={r.label}>
             <div
