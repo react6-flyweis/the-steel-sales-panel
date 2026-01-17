@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Bell } from "lucide-react";
 import FollowUpDialog from "@/components/follow-up/follow-up-dialog";
+import SuccessDialog from "@/components/success-dialog";
 
 interface RecommendedTime {
   id: string;
@@ -21,6 +22,7 @@ export default function SingleReminder() {
   const navigate = useNavigate();
 
   const [openAddFollowUp, setOpenAddFollowUp] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const [recommendedTimes] = useState<RecommendedTime[]>([
     { id: "1", label: "Today 10:30 AM" },
@@ -164,6 +166,18 @@ export default function SingleReminder() {
       <FollowUpDialog
         open={openAddFollowUp}
         onOpenChange={setOpenAddFollowUp}
+        onFollowUp={() => {
+          // Show success dialog after follow-up is created
+          setOpenAddFollowUp(false);
+          setShowSuccess(true);
+        }}
+      />
+
+      <SuccessDialog
+        open={showSuccess}
+        onClose={() => {}}
+        // onClose={() => navigate("/leads/1/chats")}
+        title="Follow-up Added Successfully!"
       />
     </div>
   );
