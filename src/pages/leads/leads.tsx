@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import StatCard from "@/components/ui/stat-card";
 import ChatDialog from "@/components/leads/chat-dialog";
 import MoveToOrdersDialog from "@/components/leads/move-to-orders-dialog";
+import SuccessDialog from "@/components/success-dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -100,7 +101,7 @@ const initialLeads = [
 ];
 
 export default function LeadsPage() {
-  const [period, setPeriod] = useState<Period>("today");
+  const [period, setPeriod] = useState<Period>("quarter");
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -125,6 +126,8 @@ export default function LeadsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [leads] = useState(initialLeads);
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [exporting, setExporting] = useState(false);
+  const [showExportSuccess, setShowExportSuccess] = useState(false);
 
   // Filter leads based on all criteria
   const filteredLeads = useMemo(() => {
@@ -203,6 +206,17 @@ export default function LeadsPage() {
     return colors[color] || "bg-gray-100 text-gray-700";
   };
 
+  const handleExport = async () => {
+    try {
+      setExporting(true);
+      // Placeholder for actual export logic (API call / file generation)
+      await new Promise((res) => setTimeout(res, 600));
+      setShowExportSuccess(true);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <>
       <FilterTabs onPeriodChange={setPeriod} initialPeriod={period} />
@@ -254,9 +268,14 @@ export default function LeadsPage() {
             </Link>
 
             <ImportLeadsDialog />
-            <Button variant="outline" className="bg-white">
+            <Button
+              variant="outline"
+              className="bg-white"
+              onClick={handleExport}
+              disabled={exporting}
+            >
               <Download className="h-4 w-4 mr-2" />
-              Export Data
+              {exporting ? "Exporting..." : "Export Data"}
             </Button>
           </div>
 
@@ -402,7 +421,7 @@ export default function LeadsPage() {
                         <td className="px-3 py-2 sm:px-6 sm:py-4">
                           <Badge
                             className={`${getStatusBadgeColor(
-                              lead.statusColor
+                              lead.statusColor,
                             )} rounded-full px-4 py-1 text-sm`}
                             variant="secondary"
                           >
@@ -491,6 +510,12 @@ export default function LeadsPage() {
           </CardContent>
         </Card>
       </div>
+      <SuccessDialog
+        open={showExportSuccess}
+        onClose={() => setShowExportSuccess(false)}
+        title="Export completed"
+        okLabel="Great"
+      />
     </>
   );
 }
