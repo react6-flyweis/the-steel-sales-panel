@@ -16,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ChevronDown } from "lucide-react";
 
 interface LeadScore {
   id: string;
@@ -92,7 +91,7 @@ export default function LeadScoring() {
 
   const updateLeadScore = (id: string, newScore: LeadScore["score"]) => {
     setLeads((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, score: newScore } : l))
+      prev.map((l) => (l.id === id ? { ...l, score: newScore } : l)),
     );
   };
 
@@ -301,11 +300,10 @@ export default function LeadScoring() {
                       >
                         <SelectTrigger
                           className={`${getScoreBadgeClass(
-                            lead.score
+                            lead.score,
                           )} rounded-full px-4`}
                         >
                           <SelectValue />
-                          <ChevronDown className="ml-1 h-3 w-3" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="Hot">Hot</SelectItem>
