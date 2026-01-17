@@ -48,7 +48,7 @@ export default function FollowUpDialog({
 }: Props) {
   const [type, setType] = useState("chat");
   const [clientId, setClientId] = useState<string | null>(
-    initialClientId ?? (clients.length ? clients[0].id : null)
+    initialClientId ?? (clients.length ? clients[0].id : null),
   );
   const navigate = useNavigate();
 
@@ -63,9 +63,9 @@ export default function FollowUpDialog({
     e.preventDefault();
     const payload = { clientId: clientId ?? null, type };
     console.log("Create follow up", payload);
-    // navigate(`/leads/${clientId}/${type}`);
-    navigate("/leads/1/chats");
     onFollowUp?.(payload);
+    // navigate(`/leads/${clientId}/${type}`);
+    setTimeout(() => navigate("/leads/1/chats"), 500);
     // TODO: wire actual creation logic
     onOpenChange?.(false);
   };
