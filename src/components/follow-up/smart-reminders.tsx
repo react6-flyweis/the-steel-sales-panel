@@ -35,66 +35,68 @@ const mockReminders: Reminder[] = [
 
 export default function SmartReminders() {
   return (
-    <Card className="p-6 gap-0">
-      <div className="flex flex-col md:flex-row  md:items-center gap-2">
-        <div className="">
-          <span className="text-xl">🧠</span>
-          <h2 className="text-lg font-semibold">Smart Follow-Up Reminders</h2>
-        </div>
-        <span className="ml-auto bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
-          3 active
-        </span>
-      </div>
-
-      <p className="text-sm text-gray-500 mb-5">AI-powered suggestions</p>
-
-      <div className="space-y-4">
-        {mockReminders.map((reminder) => (
-          <div key={reminder.id} className="bg-[#F9FAFB] rounded-md p-2">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h3 className="font-semibold text-gray-900">
-                  {reminder.customer}
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">
-                  {reminder.suggestion}
-                </p>
-              </div>
-              <div className="flex items-center gap-1 ml-4">
-                <span className="text-sm font-medium text-green-600">
-                  {reminder.confidence}
-                </span>
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-              </div>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                className="flex-1 bg-blue-600 hover:bg-blue-700"
-              >
-                Apply
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                className="flex-1 border-gray-300"
-              >
-                Snooze
-              </Button>
-            </div>
+    <Link to="/leads/follow-up/smart-reminders">
+      <Card className="p-6 gap-0">
+        <div className="flex flex-col md:flex-row  md:items-center gap-2">
+          <div className="">
+            <span className="text-xl">🧠</span>
+            <h2 className="text-lg font-semibold">Smart Follow-Up Reminders</h2>
           </div>
-        ))}
-      </div>
+          <span className="ml-auto bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">
+            3 active
+          </span>
+        </div>
 
-      <div className="mt-4 text-center">
-        <Link to="/leads/follow-up/smart-reminders">
-          <Button variant="link" className="text-blue-600 text-sm">
-            View All Smart Reminders
-            <ArrowRight />
-          </Button>
-        </Link>
-      </div>
-    </Card>
+        <p className="text-sm text-gray-500 mb-5">AI-powered suggestions</p>
+
+        <div className="space-y-4">
+          {mockReminders.map((reminder) => (
+            <div key={reminder.id} className="bg-[#F9FAFB] rounded-md p-2">
+              <div className="flex items-start justify-between mb-3">
+                <div>
+                  <h3 className="font-semibold text-gray-900">
+                    {reminder.customer}
+                  </h3>
+                  <p className="text-sm text-gray-600 mt-1">
+                    {reminder.suggestion}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 ml-4">
+                  <span className="text-sm font-medium text-green-600">
+                    {reminder.confidence}
+                  </span>
+                  <CheckCircle2 className="w-4 h-4 text-green-600" />
+                </div>
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  Apply
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1 border-gray-300"
+                >
+                  Snooze
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link to="/leads/follow-up/smart-reminders">
+            <Button variant="link" className="text-blue-600 text-sm">
+              View All Smart Reminders
+              <ArrowRight />
+            </Button>
+          </Link>
+        </div>
+      </Card>
+    </Link>
   );
 }
