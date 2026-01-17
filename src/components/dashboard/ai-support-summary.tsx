@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 export default function AiSupportSummary() {
   const navigate = useNavigate();
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-lg font-semibold text-gray-900">
