@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   ResponsiveContainer,
@@ -24,7 +25,7 @@ type Period = "7" | "30" | "90";
 type Tab = "customers" | "revenue" | "team";
 
 export default function PerformanceTrends() {
-  const [period, setPeriod] = useState<Period>("7");
+  const [period] = useState<Period>("7");
   const [tab, setTab] = useState<Tab>("customers");
 
   const data = useMemo(() => {
@@ -46,22 +47,15 @@ export default function PerformanceTrends() {
   ] as const;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex items-start justify-between">
         <div>
           <h3 className="text-xl font-semibold text-gray-900">
             Performance Trends
           </h3>
           <div className="text-sm text-gray-500 mt-1 flex items-center gap-3">
-            <select
-              value={period}
-              onChange={(e) => setPeriod(e.target.value as Period)}
-              className="text-sm text-gray-600 border rounded px-2 py-1 bg-white"
-            >
-              <option value="7">Last 7 Days</option>
-              <option value="30">Last 30 Days</option>
-              <option value="90">Last 90 Days</option>
-            </select>
+            Last 7 days
+            <ChevronDown className="size-4" />
           </div>
         </div>
         <div className="text-sm text-gray-400">+15% increase this month</div>
