@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Send, Menu, Sparkles, Mail, Phone, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import FollowUpDialog from "@/components/follow-up/follow-up-dialog";
+import SuccessDialog from "@/components/success-dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -40,6 +41,7 @@ export default function AiScriptGeneratorPage() {
     },
   ]);
   const [inputMessage, setInputMessage] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleSendMessage = () => {
     if (inputMessage.trim()) {
@@ -182,7 +184,10 @@ export default function AiScriptGeneratorPage() {
               </h2>
             </div>
 
-            <FollowUpDialog showClientSelector={true}>
+            <FollowUpDialog
+              showClientSelector={true}
+              onFollowUp={() => setShowSuccess(true)}
+            >
               <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
                 <Sparkles className="h-4 w-4" />
                 Use Script
@@ -197,7 +202,7 @@ export default function AiScriptGeneratorPage() {
                 key={message.id}
                 className={cn(
                   "flex",
-                  message.sender === "user" ? "justify-start" : "justify-end"
+                  message.sender === "user" ? "justify-start" : "justify-end",
                 )}
               >
                 <div
@@ -205,7 +210,7 @@ export default function AiScriptGeneratorPage() {
                     "max-w-[80%] rounded-lg px-4 py-3",
                     message.sender === "user"
                       ? "bg-gray-200 text-gray-900"
-                      : "bg-blue-600 text-white"
+                      : "bg-blue-600 text-white",
                   )}
                 >
                   <p className="text-sm whitespace-pre-wrap leading-relaxed">
@@ -237,6 +242,12 @@ export default function AiScriptGeneratorPage() {
             </div>
           </div>
         </Card>
+        <SuccessDialog
+          open={showSuccess}
+          onClose={() => setShowSuccess(false)}
+          title="Script applied successfully!"
+          okLabel="Done"
+        />
       </div>
     </div>
   );
