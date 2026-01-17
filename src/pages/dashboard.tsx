@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { getDashboardMetrics, type DashboardMetrics } from "@/lib/metrics";
 
 export default function Dashboard() {
-  const [period, setPeriod] = useState<Period>("today");
+  const [period, setPeriod] = useState<Period>("quarter");
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -94,11 +94,13 @@ export default function Dashboard() {
         </div>
 
         {/* chart row 2 2:1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          <div className="lg:col-span-3">
             <PerformanceTrends />
           </div>
-          <TodaysTask />
+          <div className="lg:col-span-2">
+            <TodaysTask />
+          </div>
         </div>
       </div>
     </div>
