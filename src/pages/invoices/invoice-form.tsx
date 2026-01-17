@@ -9,6 +9,7 @@ import AddClientDialog from "@/components/invoice/add-client-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import steelLogo from "@/assets/steel-building-depot-logo.png";
+import { useNavigate } from "react-router";
 
 export interface LineItem {
   id: string;
@@ -82,6 +83,8 @@ export default function InvoiceForm() {
       },
     });
 
+  const navigate = useNavigate();
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: "lineItems",
@@ -136,7 +139,7 @@ export default function InvoiceForm() {
     return items.reduce(
       (sum, item) =>
         sum + (parseFloat(String(item.rate || 0)) || 0) * (item.quantity || 0),
-      0
+      0,
     );
   };
 
@@ -158,6 +161,31 @@ export default function InvoiceForm() {
 
   const onSubmit = (data: InvoiceFormValues) => {
     console.log("submit", data);
+    handlePreview();
+  };
+
+  const handlePreview = () => {
+    const values = getValues();
+    const items = (values.lineItems || []).map((li) => ({
+      id: li.id,
+      description: li.description,
+      notes: li.notes,
+      rate: li.rate,
+      quantity: li.quantity,
+      photos: li.images || [],
+    }));
+
+    navigate("/invoice/preview", {
+      state: {
+        invoiceNumber: values.invoiceNumber || invoiceNumber,
+        date: values.date,
+        daysToPay: values.daysToPay,
+        items,
+        subtotal: calculateSubtotal(),
+        taxAmount: calculateTax(),
+        total: calculateTotal(),
+      },
+    });
   };
 
   return (
@@ -537,7 +565,7 @@ export default function InvoiceForm() {
                           name: string;
                           amount: string;
                         },
-                        i: number
+                        i: number,
                       ) => (
                         <div
                           key={i}
@@ -545,7 +573,7 @@ export default function InvoiceForm() {
                         >
                           {p.name} {p.amount}
                         </div>
-                      )
+                      ),
                     )}
 
                     <PaymentScheduleDialog
