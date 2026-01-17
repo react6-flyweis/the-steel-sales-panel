@@ -21,27 +21,27 @@ const AddNewLead = lazy(() => import("@/pages/leads/add-new-lead"));
 const LeadDetails = lazy(() => import("@/pages/leads/lead-details"));
 const FollowUp = lazy(() => import("@/pages/leads/follow-up"));
 const LeadCommunicationTimelinePage = lazy(
-  () => import("@/pages/leads/lead-communication-timeline")
+  () => import("@/pages/leads/lead-communication-timeline"),
 );
 const SingleLeadTimelinePage = lazy(
-  () => import("@/pages/leads/single-lead-timeline")
+  () => import("@/pages/leads/single-lead-timeline"),
 );
 const SingleLeadEmailsPage = lazy(
-  () => import("@/pages/leads/single-lead-emails")
+  () => import("@/pages/leads/single-lead-emails"),
 );
 const SingleLeadChatsPage = lazy(
-  () => import("@/pages/leads/single-lead-chats")
+  () => import("@/pages/leads/single-lead-chats"),
 );
 const SmartReminders = lazy(() => import("@/pages/leads/smart-reminders"));
 const SmartReminderDetail = lazy(() => import("@/pages/leads/single-reminder"));
 const SingleLeadNotesPage = lazy(
-  () => import("@/pages/leads/single-lead-notes")
+  () => import("@/pages/leads/single-lead-notes"),
 );
 const SingleLeadCallsPage = lazy(
-  () => import("@/pages/leads/single-lead-calls")
+  () => import("@/pages/leads/single-lead-calls"),
 );
 const AiScriptGeneratorPage = lazy(
-  () => import("@/pages/leads/ai-script-generator")
+  () => import("@/pages/leads/ai-script-generator"),
 );
 const LeadScoring = lazy(() => import("@/pages/leads/lead-scoring"));
 const FollowUpKpis = lazy(() => import("@/pages/leads/follow-up-kpis"));
@@ -52,7 +52,10 @@ const InvoiceForm = lazy(() => import("@/pages/invoices/invoice-form"));
 const InvoiceList = lazy(() => import("@/pages/invoices/invoice-list"));
 const SalesGrowth = lazy(() => import("@/pages/invoices/sales-growth"));
 const PaymentFollowUp = lazy(
-  () => import("@/pages/invoices/payment-follow-up")
+  () => import("@/pages/invoices/payment-follow-up"),
+);
+const InvoicePreviewPage = lazy(
+  () => import("@/pages/invoices/invoice-preview"),
 );
 
 export const salesRoutes: RouteObject[] = [
@@ -166,6 +169,7 @@ export const salesRoutes: RouteObject[] = [
         children: [
           { index: true, element: <InvoiceForm /> },
           { path: "list", element: <InvoiceList /> },
+          { path: "preview", element: <InvoicePreviewPage /> },
           { path: "new", element: <InvoiceForm /> },
           { path: ":id", element: <InvoiceForm /> },
           { path: "sales-growth", element: <SalesGrowth /> },
