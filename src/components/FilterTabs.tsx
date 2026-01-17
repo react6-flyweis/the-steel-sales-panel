@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export type Period = "today" | "week" | "month";
+export type Period = "week" | "month" | "quarter";
 
 type Props = {
   initialPeriod?: Period;
@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function FilterTabs({
-  initialPeriod = "today",
+  initialPeriod = "quarter",
   onPeriodChange,
 }: Props) {
   const [period, setPeriod] = useState<Period>(initialPeriod);
@@ -37,9 +37,9 @@ export default function FilterTabs({
   return (
     <div className="relative flex h-10 bg-[#89D5DC] overflow-hidden">
       <button
-        onClick={() => handleChange("today")}
+        onClick={() => handleChange("week")}
         className={`relative w-64 px-8 font-medium z-30 bg-[#89D5DC] ${
-          period === "today"
+          period === "week"
             ? "ring-2 ring-white/40 text-black"
             : "text-white opacity-60"
         }`}
@@ -50,9 +50,9 @@ export default function FilterTabs({
         Today
       </button>
 
-      {button("week", "bg-[#6B93CE]", "z-20")}
+      {button("month", "bg-[#6B93CE]", "z-20")}
 
-      {button("month", "bg-[#4A72B7]", "z-10")}
+      {button("quarter", "bg-[#4A72B7]", "z-10")}
     </div>
   );
 }
