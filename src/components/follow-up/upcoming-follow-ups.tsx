@@ -56,6 +56,7 @@ const mockFollowUps: FollowUp[] = [
 
 export default function UpcomingFollowUps() {
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const daysInMonth = Array.from({ length: 31 }, (_, i) => i + 1);
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -63,6 +64,10 @@ export default function UpcomingFollowUps() {
   const getFollowUpForDay = (day: number) => {
     return mockFollowUps.filter((f) => parseInt(f.date) === day);
   };
+
+  const filteredFollowUps = selectedDay
+    ? mockFollowUps.filter((f) => parseInt(f.date) === selectedDay)
+    : mockFollowUps;
 
   return (
     <Card className="p-6">
@@ -81,12 +86,15 @@ export default function UpcomingFollowUps() {
           <Button
             size="sm"
             variant={viewMode === "calendar" ? "default" : "ghost"}
-            onClick={() => setViewMode("calendar")}
+            onClick={() => {
+              setViewMode("calendar");
+              setSelectedDay(null);
+            }}
             className={cn(
               "flex-1 px-3 h-8 text-xs",
               viewMode === "calendar"
                 ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-transparent text-gray-600 hover:bg-gray-200"
+                : "bg-transparent text-gray-600 hover:bg-gray-200",
             )}
           >
             <Calendar className="w-3 h-3 mr-1" />
@@ -95,12 +103,15 @@ export default function UpcomingFollowUps() {
           <Button
             size="sm"
             variant={viewMode === "list" ? "default" : "ghost"}
-            onClick={() => setViewMode("list")}
+            onClick={() => {
+              setViewMode("list");
+              setSelectedDay(null);
+            }}
             className={cn(
               "flex-1 px-3 h-8 text-xs",
               viewMode === "list"
                 ? "bg-blue-600 text-white hover:bg-blue-700"
-                : "bg-transparent text-gray-600 hover:bg-gray-200"
+                : "bg-transparent text-gray-600 hover:bg-gray-200",
             )}
           >
             <List className="w-3 h-3 mr-1" />
@@ -138,11 +149,16 @@ export default function UpcomingFollowUps() {
               return (
                 <div
                   key={day}
+                  onClick={() => {
+                    setSelectedDay(day);
+                    setViewMode("list");
+                  }}
                   className={cn(
-                    "aspect-square border rounded-md flex flex-col items-center justify-center p-1 text-sm relative",
+                    "aspect-square border rounded-md flex flex-col items-center justify-center p-1 text-sm relative cursor-pointer",
                     isToday && "bg-blue-600 text-white font-bold",
+                    selectedDay === day && "ring-2 ring-blue-400",
                     hasFollowUp && !isToday && "border-red-400",
-                    !hasFollowUp && !isToday && "text-gray-700"
+                    !hasFollowUp && !isToday && "text-gray-700",
                   )}
                 >
                   <span className="text-xs">{day}</span>
@@ -150,7 +166,7 @@ export default function UpcomingFollowUps() {
                     <span
                       className={cn(
                         "text-[10px] font-semibold",
-                        isOverdue ? "text-red-500" : "text-orange-500"
+                        isOverdue ? "text-red-500" : "text-orange-500",
                       )}
                     >
                       {day}+
@@ -165,65 +181,73 @@ export default function UpcomingFollowUps() {
 
       {viewMode === "list" && (
         <div className="space-y-2">
-          {mockFollowUps.map((followUp) => {
-            const isOverdue = followUp.status === "overdue";
-            const isUpcoming = followUp.status === "upcoming";
+          {selectedDay && (
+            <p className="text-sm text-gray-600">
+              Showing follow-ups for {selectedDay}
+            </p>
+          )}
 
-            const bgClass = isOverdue
-              ? "bg-rose-100 border-rose-200"
-              : isUpcoming
-              ? "bg-amber-100 border-amber-200"
-              : "bg-rose-50 border-rose-100";
+          {filteredFollowUps.length === 0 ? (
+            <div className="p-4 text-center text-sm text-gray-500">
+              No follow-ups for this date
+            </div>
+          ) : (
+            filteredFollowUps.map((followUp) => {
+              const isOverdue = followUp.status === "overdue";
+              const isUpcoming = followUp.status === "upcoming";
 
-            const Icon = (() => {
-              switch (followUp.type) {
-                case "Call":
-                  return <Phone className="w-5 h-5 text-gray-700" />;
-                case "Email":
-                  return <Mail className="w-5 h-5 text-gray-700" />;
-                case "Meeting":
-                default:
-                  return <Calendar className="w-5 h-5 text-gray-700" />;
-              }
-            })();
+              const bgClass = isOverdue
+                ? "bg-rose-100 border-rose-200"
+                : isUpcoming
+                  ? "bg-amber-100 border-amber-200"
+                  : "bg-rose-50 border-rose-100";
 
-            return (
-              <div
-                key={followUp.id}
-                className={cn(
-                  "w-full p-4 rounded-md flex items-center justify-between",
-                  "border",
-                  "hover:shadow-sm",
-                  bgClass
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-md bg-white/70">{Icon}</div>
-                  <div>
-                    <p className="font-semibold text-sm">{followUp.customer}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-4 h-4" /> {followUp.time}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Building className="w-4 h-4" /> {followUp.company}
-                      </span>
+              const Icon = (() => {
+                switch (followUp.type) {
+                  case "Call":
+                    return <Phone className="w-5 h-5 text-gray-700" />;
+                  case "Email":
+                    return <Mail className="w-5 h-5 text-gray-700" />;
+                  case "Meeting":
+                  default:
+                    return <Calendar className="w-5 h-5 text-gray-700" />;
+                }
+              })();
+
+              return (
+                <div
+                  key={followUp.id}
+                  className={cn(
+                    "w-full p-4 rounded-md flex items-center justify-between",
+                    "border",
+                    "hover:shadow-sm",
+                    bgClass,
+                  )}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-md bg-white/70">{Icon}</div>
+                    <div>
+                      <p className="font-semibold text-sm">
+                        {followUp.customer}
+                      </p>
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mt-1">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" /> {followUp.time}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Building className="w-4 h-4" /> {followUp.company}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="text-gray-500">
-                  <Check className="w-5 h-5" />
+                  <div className="text-gray-500">
+                    <Check className="w-5 h-5" />
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {viewMode === "schedule" && (
-        <div className="text-center py-8 text-gray-500">
-          Schedule view coming soon
+              );
+            })
+          )}
         </div>
       )}
     </Card>
