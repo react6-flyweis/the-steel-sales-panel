@@ -21,13 +21,13 @@ export default function FilterTabs({
   const button = (p: Period, bg: string, z: string) => (
     <button
       onClick={() => handleChange(p)}
-      className={`relative w-64 px-8 font-medium -ml-6 ${z} ${bg} ${
+      className={`relative w-64 px-8 font-medium -ml-7.5 ${z} ${bg} ${
         period === p
           ? "ring-2 ring-white/40 text-black"
           : "text-white opacity-60"
       }`}
       style={{
-        clipPath: "polygon(30px 0, calc(100% - 30px) 0, 100% 100%, 0 100%)",
+        clipPath: "polygon(0 0, calc(100% - 30px) 0, 100% 100%, 30px 100%)",
       }}
     >
       {p}
