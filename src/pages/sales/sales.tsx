@@ -16,6 +16,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { DeliveryDetailsDialog } from "./delivery-details-dialog";
 
 type DeliveryStatus = "confirmed" | "delivered" | "scheduled";
 
@@ -79,6 +80,10 @@ const customerGroups: CustomerGroup[] = [
 
 export default function SalesPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedDelivery, setSelectedDelivery] = useState<
+    (DeliveryItem & { customer: string }) | null
+  >(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const salesStats = [
     {
@@ -243,6 +248,13 @@ export default function SalesPage() {
                             </div>
                             <Button
                               variant="outline"
+                              onClick={() => {
+                                setSelectedDelivery({
+                                  ...delivery,
+                                  customer: group.customer,
+                                });
+                                setIsDialogOpen(true);
+                              }}
                               className="w-full sm:w-auto rounded-lg border-slate-200/80 font-medium text-xs text-slate-600 shadow-sm hover:bg-slate-50 h-8"
                             >
                               View Details
@@ -336,6 +348,12 @@ export default function SalesPage() {
           </CardContent>
         </Card>
       </div>
+
+      <DeliveryDetailsDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        delivery={selectedDelivery}
+      />
     </div>
   );
 }
