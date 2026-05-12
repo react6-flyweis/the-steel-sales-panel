@@ -11,10 +11,15 @@ import { useState, useEffect } from "react";
 // icons
 import dashboardIcon from "@/assets/icons/sidebar/dashboard.svg";
 import customerIcon from "@/assets/icons/sidebar/customer.svg";
+import deliveryIcon from "@/assets/icons/sidebar/delivery.svg";
 import callIcon from "@/assets/icons/sidebar/call.svg";
 import invoices from "@/assets/icons/sidebar/invoices.svg";
 import leadsIcon from "@/assets/icons/sidebar/leads.svg";
 import notificationIcon from "@/assets/icons/sidebar/notifications.svg";
+import freightIcon from "@/assets/icons/sidebar/freights.svg";
+import salesIcon from "@/assets/icons/sidebar/sales.svg";
+import communicationIcon from "@/assets/icons/sidebar/communication.svg";
+
 import activeBgImage from "@/assets/images/active-bg.png";
 
 import { Button } from "@/components/ui/button";
@@ -33,7 +38,12 @@ type NavGroup =
   | "accounts"
   | "reports"
   | "construction"
-  | "ai-marketing";
+  | "ai-marketing"
+  | "deliveries"
+  | "notifications"
+  | "awarded-freight"
+  | "sales"
+  | "communication";
 
 interface NavigationItem {
   path: string;
@@ -151,6 +161,52 @@ const navigationGroups: NavigationGroup[] = [
       // },
     ],
   },
+  {
+    id: "deliveries" as NavGroup,
+    icon: deliveryIcon,
+    label: "Customer Delivery",
+    color: "bg-[#F54900]",
+    link: "/deliveries",
+    items: [
+      // project deliveries
+      {
+        path: "/deliveries/projects",
+        label: "Project Deliveries",
+      },
+      // request delivery/change
+      {
+        path: "/customers/request-delivery-change",
+        label: "Request Delivery / Change",
+      },
+    ],
+  },
+  // awarded freight
+  {
+    id: "awarded-freight" as NavGroup,
+    icon: freightIcon,
+    label: "Awarded Freight",
+    color: "bg-[#9810FA]",
+    link: "/awarded-freight",
+    items: [],
+  },
+  {
+    id: "sales" as NavGroup,
+    icon: salesIcon,
+    label: "Sales",
+    color: "bg-[#F54900]",
+    link: "/sales",
+    items: [],
+  },
+  {
+    id: "communication" as NavGroup,
+    icon: communicationIcon,
+    label: "Communication",
+    color: "bg-[#155DFC]",
+    link: "/customer-communication",
+    items: [],
+  },
+  // sales
+  // communication
 ];
 
 interface SidebarProps {
@@ -290,7 +346,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         }`}
       >
         {/* Icon Sidebar */}
-        <aside className="w-14 pt-28 bg-[#2563eb] h-screen flex flex-col items-center gap-4 z-20">
+        <aside className="w-14 pt-28 bg-sidebar h-screen flex flex-col items-center gap-4 z-20">
           <nav className="flex flex-col gap-3">
             {navigationGroups.map((group) => {
               const iconSrc = group.icon as string;
