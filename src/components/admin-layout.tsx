@@ -1,10 +1,24 @@
-import { Outlet } from "react-router";
+import { Outlet, useLocation } from "react-router";
 import { Sidebar } from "@/components/sidebar";
 import { Header } from "@/components/header";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 export function AdminLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isMainCollapsed, setIsMainCollapsed] = useState(false);
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      try {
+        scrollRef.current.scrollTo({ top: 0, left: 0 });
+      } catch {
+        scrollRef.current.scrollTop = 0;
+      }
+    }
+  }, [location.pathname]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -16,8 +30,19 @@ export function AdminLayout() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-      <div className="flex-1 flex flex-col ml-0 lg:ml-70 overflow-auto">
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={closeSidebar}
+        isMainCollapsed={isMainCollapsed}
+        setIsMainCollapsed={setIsMainCollapsed}
+      />
+      <div
+        ref={scrollRef}
+        className={cn(
+          "flex-1 flex flex-col ml-0 overflow-auto transition-all duration-300",
+          isMainCollapsed ? "lg:ml-18" : "lg:ml-74",
+        )}
+      >
         <Header onMenuClick={toggleSidebar} />
         <main className="flex-1 bg-[#E8EFF9] pb-5">
           <Outlet />

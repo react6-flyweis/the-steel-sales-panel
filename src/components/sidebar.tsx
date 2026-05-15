@@ -212,11 +212,23 @@ const navigationGroups: NavigationGroup[] = [
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  isMainCollapsed: boolean;
+  setIsMainCollapsed: (val: boolean) => void;
 }
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
+export function Sidebar({
+  isOpen,
+  onClose,
+  isMainCollapsed = false,
+  setIsMainCollapsed,
+}: SidebarProps) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [hoveredGroup, setHoveredGroup] = useState<{
+    label: string;
+    top: number;
+    left: number;
+  } | null>(null);
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
     () => {
       return new Set(
@@ -287,8 +299,8 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
   );
 
   // Calculate padding based on active group index
-  // Each icon with gap is approximately 48px (36px icon + 12px gap)
-  const calculatedPadding = 10 + activeGroupIndex * 48;
+  // Each icon with gap is approximately 48px (36px icon + 20px gap)
+  const calculatedPadding = 10 + activeGroupIndex * 56;
 
   // Calculate the height needed for active group items
   const activeGroupItemsHeight =
@@ -317,6 +329,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
   const handleGroupChange = (group: (typeof navigationGroups)[0]) => {
     navigate(group.link);
+    setIsMainCollapsed(false);
     // Close sidebar on mobile after navigation
     if (window.innerWidth < 768) {
       onClose();
@@ -346,45 +359,76 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         }`}
       >
         {/* Icon Sidebar */}
-        <aside className="w-14 pt-28 bg-sidebar h-screen flex flex-col items-center gap-4 z-20">
-          <nav className="flex flex-col gap-3">
-            {navigationGroups.map((group) => {
-              const iconSrc = group.icon as string;
-              const isActive = activeGroup.id === group.id;
+        <aside
+          style={{ scrollbarGutter: "stable", direction: "rtl" }}
+          className={`w-18 pt-28 pb-8 bg-sidebar h-screen flex flex-col items-center gap-4 z-40 overflow-y-scroll overflow-x-visible thin-scrollbar relative`}
+        >
+          <div style={{ direction: "ltr" }}>
+            <nav className="flex flex-col gap-5">
+              {navigationGroups.map((group) => {
+                const iconSrc = group.icon as string;
+                const isActive = activeGroup.id === group.id;
 
-              return (
-                <button
-                  key={group.id}
-                  onClick={() => handleGroupChange(group)}
-                  className={`relative flex items-center justify-center transition-all `}
-                  title={group.label}
-                >
-                  {isActive && (
-                    <img
-                      src={activeBgImage}
-                      alt="Active background"
-                      className="absolute -right-3 max-w-13 object-contain"
-                    />
-                  )}
-                  <div
-                    className={`z-10 w-9 h-9 flex items-center justify-center rounded-full ${
-                      group.color
-                    } ${isActive ? "" : ""}`}
+                return (
+                  <button
+                    key={group.id}
+                    onClick={() => handleGroupChange(group)}
+                    onMouseEnter={(event) => {
+                      const rect = event.currentTarget.getBoundingClientRect();
+                      setHoveredGroup({
+                        label: group.label,
+                        top: rect.top + rect.height / 2,
+                        left: rect.left - 4,
+                      });
+                    }}
+                    onMouseLeave={() => setHoveredGroup(null)}
+                    className={`relative flex items-center justify-center transition-all group focus:outline-none`}
                   >
-                    <img
-                      src={iconSrc}
-                      alt={group.label}
-                      className="max-w-5 max-h-5 object-contain"
-                    />
-                  </div>
-                </button>
-              );
-            })}
-          </nav>
+                    {isActive && (
+                      <img
+                        src={activeBgImage}
+                        alt="Active background"
+                        className="absolute -right-3 max-w-14 **: object-contain"
+                      />
+                    )}
+                    <div
+                      className={`z-50 relative size-10 flex items-center justify-center rounded-full ${
+                        group.color
+                      } ${isActive ? "" : ""} group-hover:scale-105`}
+                    >
+                      <img
+                        src={iconSrc}
+                        alt={group.label}
+                        className="max-w-5 max-h-5 object-contain"
+                      />
+                    </div>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+
+          {hoveredGroup && (
+            <div
+              className="fixed flex items-center bg-white rounded-full py-1 pl-8 pointer-events-none whitespace-nowrap shadow-[0_10px_20px_-5px_rgba(0,0,0,0.1),0_8px_8px_-6px_rgba(0,0,0,0.1)] z-40 -translate-y-1/2"
+              style={{ top: hoveredGroup.top, left: hoveredGroup.left }}
+            >
+              <div className="w-10 h-10 shrink-0" />
+              <span className="ml-4 font-normal text-black text-sm lg:text-base tracking-tight">
+                {hoveredGroup.label}
+              </span>
+            </div>
+          )}
         </aside>
 
         {/* Main Sidebar */}
-        <aside className="w-56 bg-[#E8EFF9] h-full flex flex-col overflow-y-auto thin-scrollbar z-30">
+        <aside
+          className={cn(
+            "bg-[#E8EFF9] h-full flex flex-col overflow-y-auto thin-scrollbar z-30 transition-all duration-300",
+            isMainCollapsed ? "w-0 opacity-0 overflow-hidden" : "w-56",
+          )}
+          style={{ scrollbarGutter: "stable" }}
+        >
           {/* Header */}
           <div className="p-2 border-b relative">
             {/* Close button for mobile */}
@@ -394,11 +438,23 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
             >
               <XIcon className="h-5 w-5" />
             </button>
-            <div className="flex items-center gap-3">
-              <div>
-                <h2 className="text-lg font-bold text-gray-800">Admin Panel</h2>
-                <p className="text-xs text-gray-500">admin@steelpro.com</p>
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-800">
+                    Admin Panel
+                  </h2>
+                  <p className="text-xs text-gray-500">admin@steelpro.com</p>
+                </div>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-transparent hidden lg:block"
+                onClick={() => setIsMainCollapsed(true)}
+              >
+                <ChevronLeftIcon />
+              </Button>
             </div>
             <div className="flex items-center justify-between mt-1 text-xs text-gray-400">
               <Button
